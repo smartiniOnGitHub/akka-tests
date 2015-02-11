@@ -18,5 +18,26 @@ apply plugin: "groovy"
 
 dependencies {
 	compile project(":akka-tests-common")
+	// compile 'org.codehaus.groovy:groovy-all:2.0.8'  // the same version of Grails-2.2.5
 	compile 'org.codehaus.groovy:groovy-all:2.3.9'
+}
+
+task runGroovyAkkaRemoteServer(type: JavaExec) {
+	description 'Run Groovy script of AkkaRemoteServer, for publishing actors available from remote'
+
+	// Set classpath for running the Groovy script.
+	classpath = sourceSets.main.runtimeClasspath
+
+	// Set main property to name of Groovy script class.
+	main = 'akka_tests.groovy.server.AkkaRemoteServer'
+
+	// if (project.hasProperty('custom')) {
+	// 	args project.getProperty('custom')
+	// }
+}
+
+task runGroovyAkkaRemoteClient(type: JavaExec) {
+	description 'Run Groovy script of AkkaRemoteClient, for using (consuming) actors available from the remote server'
+	classpath = sourceSets.main.runtimeClasspath
+	main = 'akka_tests.groovy.client.AkkaRemoteClient'
 }

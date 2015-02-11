@@ -14,44 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-allprojects {
-	apply plugin: "java"
-	apply plugin: "eclipse"
+package akka_tests.groovy.server
 
-	buildDir = 'target'
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+/**
+ * Simple Groovy server application for creating some Akka Actors and make them reachable from other (remote) processes
+ */
+class AkkaRemoteServer {
+  
+	static void main(def args) {
+		println("Application: Start a simple server console application for creating some Akka Actors and make them reachable from other (remote) processes\n")
 
-	group = "akka_tests"
-	version = "1.0"
+		// setup phase
+		println("setup: start at ${new Date()}.")
 
-}
+// TODO: put real implementation here ...
+// TODO: (later) make a little cleanup to move features into methods ...
 
-subprojects {
-	apply plugin: "java"
 
-	repositories {
-		mavenLocal()
-		mavenCentral()
-		// jcenter()
-	}
-
-	ext {
-		akkaVersion = '2.2.4'
-		scalaSuffixVersion = '_2.10'
-
-		junitVersion = '4.12'
-	}
-
-	dependencies {
-        compile "com.typesafe.akka:akka-actor$scalaSuffixVersion:$akkaVersion"
-		compile "com.typesafe.akka:akka-remote$scalaSuffixVersion:$akkaVersion"
-        testCompile "com.typesafe.akka:akka-testkit$scalaSuffixVersion:$akkaVersion"
-
-		testCompile "junit:junit:$junitVersion"	
+		println("\nApplication: execution end at ${new Date()}.")
 	}
 
 }
-
-
-task info << { task -> println "In $task.project.name" }
