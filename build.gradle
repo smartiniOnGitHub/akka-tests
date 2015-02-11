@@ -37,7 +37,7 @@ subprojects {
 	}
 
 	ext {
-		junitVersion = '4.11'
+		junitVersion = '4.12'
 	}
 
 	dependencies {

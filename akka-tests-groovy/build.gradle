@@ -18,4 +18,5 @@ apply plugin: "groovy"
 
 dependencies {
 	compile project(":akka-tests-common")
+	compile 'org.codehaus.groovy:groovy-all:2.3.9'
 }
