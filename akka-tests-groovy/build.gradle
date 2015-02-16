@@ -22,18 +22,25 @@ dependencies {
 	compile 'org.codehaus.groovy:groovy-all:2.3.9'
 }
 
-task runGroovyAkkaRemoteServer(type: JavaExec) {
-	description 'Run Groovy script of AkkaRemoteServer, for publishing actors available from remote'
+task runGroovyScript(type: JavaExec) {
+	description 'Run Groovy Application or script, from the command line argument main'
 
-	// Set classpath for running the Groovy script.
+	// set classpath for running the Groovy script
 	classpath = sourceSets.main.runtimeClasspath
 
-	// Set main property to name of Groovy script class.
-	main = 'akka_tests.groovy.server.AkkaRemoteServer'
+	// set main property to name of Groovy script class, or the Groovy class containing the main method
+	// main = ''
 
-	// if (project.hasProperty('custom')) {
-	// 	args project.getProperty('custom')
-	// }
+	// set main property to name of Application script class
+	if (project.hasProperty('main')) {
+		main = project.getProperty('main')
+	}
+}
+
+task runGroovyAkkaRemoteServer(type: JavaExec) {
+	description 'Run Groovy script of AkkaRemoteServer, for publishing actors available from remote'
+	classpath = sourceSets.main.runtimeClasspath
+	main = 'akka_tests.groovy.server.AkkaRemoteServer'
 }
 
 task runGroovyAkkaRemoteClient(type: JavaExec) {
