@@ -41,6 +41,9 @@ class AkkaRemoteServer {
 		// setup phase
 		println("setup: start at ${new Date()}.")
 
+		// TODO: print Akka version (and related Scala version) ...
+
+		// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
 		def akkaConfig = '''
 		akka {
 		  loglevel = 'DEBUG'
@@ -112,17 +115,21 @@ class AkkaRemoteServer {
 		println("Server ready ...")
 
 
+		/*
 		// TODO: make this application run, at least for one minute ...
 		sleep 10000  // wait a little, to see if remote connections are accepted in the mean time ...
 		// system.awaitTermination()  // TODO: check if needed ...
+		 */
 
+		/*
 		// workaround, to keep this script running until user write a line of text
 		sleep 500  // workaround, mainly for flushing console output ...
 		println("\nHit ENTER to exit ...")
 		println("(note that when running in Groovy Console, the input is being read from the text console in the background)")
-		def quit = System.console().readLine()
+		def quit = System.console()?.readLine()  // safer, when running in non-interactive mode (default) from Gradle ...
 
 		system.shutdown()
+		 */
 		sleep 500  // workaround, mainly for flushing console output ...
 
 
