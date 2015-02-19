@@ -49,7 +49,7 @@ class GreetingActor extends UntypedActor
 
 	// new, add a new version of the constructor with a reference to the otherActor, so now I must define even the standard (no arg) constructor ...
 	public GreetingActor(ActorRef otherActor) {
-		this.otherActor = otherActor;
+		this.otherActor = otherActor
 	}
 
 
@@ -99,8 +99,8 @@ class GreetingActor extends UntypedActor
             log.info("Wait: " + "End Waiting, after " + (stopSleep - startSleep) + " milliseconds.")
          } else if (message instanceof ActorRef) {
             log.info("$messageClassName: Message from an ActorRef, now reply to it ...")
-			target = (ActorRef) message;
-			getSender().tell("done", getSelf());
+			target = (ActorRef) message
+			getSender().tell("done", getSelf())
 		}
         else
         {

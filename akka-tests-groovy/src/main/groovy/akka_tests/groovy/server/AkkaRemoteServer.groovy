@@ -41,8 +41,6 @@ class AkkaRemoteServer {
 		// setup phase
 		println("setup: start at ${new Date()}.")
 
-		// TODO: print Akka version (and related Scala version) ...
-
 		// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
 		def akkaConfig = '''
 		akka {

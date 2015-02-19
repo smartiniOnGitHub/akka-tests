@@ -16,24 +16,23 @@
  */
 package akka_tests.groovy.message
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Collections
+import java.util.List
 
 /**
  * Map data message, as a sample.
  * <br/>
  * Used as kind of message to send to actors.
  */
-
 class MapData implements Serializable {
-	private List data;
+	private List data
 
 	public List getData() {
-		return data;
+		return data
 	}
 
 	public MapData(List data) {
-		this.data = Collections.unmodifiableList(data);
+		this.data = Collections.unmodifiableList(data)
 	}
 
 }

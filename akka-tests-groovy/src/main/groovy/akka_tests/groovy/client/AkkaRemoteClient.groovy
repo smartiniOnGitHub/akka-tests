@@ -16,9 +16,9 @@
  */
 package akka_tests.groovy.client
 
-import grails_akka_test.actor.*
-import grails_akka_test.command.*
-import grails_akka_test.message.*
+import akka_tests.groovy.actor.*
+import akka_tests.groovy.command.*
+import akka_tests.groovy.message.*
 
 // import org.junit.*
 
@@ -40,8 +40,6 @@ class AkkaRemoteClient {
 
 		// setup phase
 		println("setup: start at ${new Date()}.")
-
-		// TODO: print Akka version (and related Scala version) ...
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
 		def akkaConfig = '''
@@ -104,7 +102,7 @@ class AkkaRemoteClient {
 			system.actorSelection(remotePath + "greeting_actor")  // TODO: check if/how to do this but with context ...
 		println("Get Actor Selection to GreetingActor: $selection")
 		assert selection != null
-		selection.tell("Test String", null);
+		selection.tell("Test String", null)
 		assert selection != null
 
 		// TODO: get ActorRef actor from selection, sending a (via identify or similar) message to the selection and use the getSender reference of the reply from the actor ...
