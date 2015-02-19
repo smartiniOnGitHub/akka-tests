@@ -63,16 +63,22 @@ class AkkaRemoteClient {
 		  }
 		}
 		'''
-		println("using Akka Config: $akkaConfig")
+		def cl = this.class.classLoader
+		println("using Groovy ClassLoader: $cl")
+		println("using Akka version: ${ActorSystem.Version()}")
 
 		// global actor system to start here
 		final String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client"
 		final String remoteSystemName = "RemoteActorSystem"
 		final String remotePath = "akka.tcp://RemoteActorSystem@127.0.0.1:2552/user/"
+		println("remote actor system: $remotePath")
 
-		final ActorSystem system = // ActorSystem.create(remoteSystemName, ConfigFactory.load(akkaConfig))
+		final ActorSystem system = // ActorSystem.create(localSystemName)
 			// ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig))
-			ActorSystem.create(localSystemName)
+			// ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig), cl)  // set Groovy classloader
+			ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig))  // do not set Groovy classloader when run from Gradle ...
+			// ActorSystem.create(localSystemName)  // simplified version, good the same for a local system, using defaults
+		println("using Akka Config: $akkaConfig")
 		println("system: $system")
 		sleep 500  // workaround, mainly for flushing console output ...
 		println("setup: end at ${new Date()}.")
