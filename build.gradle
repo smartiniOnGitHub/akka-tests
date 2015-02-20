@@ -55,3 +55,17 @@ subprojects {
 
 
 task info << { task -> println "In $task.project.name" }
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.3'
+}
+
+/*
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-Xlint:deprecation"
+	options.compilerArgs << "-Xlint:unchecked"
+	sourceCompatibility = "1.7"
+	targetCompatibility = "1.7"
+}
+ */
+
