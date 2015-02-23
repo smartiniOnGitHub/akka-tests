@@ -27,14 +27,16 @@ import java.util.List;
  */
 
 public class MapData<T> implements Serializable {
-	private List<T> data;
+	private static final long serialVersionUID = 1L;
 
-	public List getData() {
-		return data;
-	}
+	private List<T> data;
 
 	public MapData(List<T> data) {
 		this.data = Collections.unmodifiableList(data);
+	}
+
+	public List<T> getData() {
+		return data;
 	}
 
 }

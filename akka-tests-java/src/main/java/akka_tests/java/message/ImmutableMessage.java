@@ -30,6 +30,8 @@ import java.util.List;
  */
 public class ImmutableMessage
 {
+	private static final long serialVersionUID = 1L;
+
     private final int sequenceNumber;
     private final List<String> values;
 

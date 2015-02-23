@@ -52,15 +52,32 @@ class AkkaRemoteClient {
 		System.out.println("setup: start at " + new java.util.Date() + ".");
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
-		String akkaConfig = "akka {\n    loglevel = 'DEBUG'\n    actor {\n    provider = 'akka.remote.RemoteActorRefProvider'\n    }\n    remote {\n    netty.tcp {\n    hostname = '127.0.0.1'\n    port = 0\n    }\n    log-sent-messages = on\n    log-received-messages = on\n    }\n    }";
+		String akkaConfig = 
+			  "akka {\n"
+			+ "    loglevel = \"DEBUG\"\n"
+			+ "    actor {\n"
+			+ "        provider = \"akka.remote.RemoteActorRefProvider\"\n"
+			+ "    }\n"
+			+ "    remote {\n"
+			+ "        netty.tcp {\n"
+			+ "            hostname = \"127.0.0.1\"\n"
+			+ "            # Client, use a different port than server (2552)\n"
+			+ "            # port = 2553\n"
+			+ "            port = 0\n"
+			+ "        }\n"
+			+ "        log-sent-messages = on\n"
+			+ "        log-received-messages = on\n"
+			+ "    }\n"
+			+ "}";
 
 		System.out.println("using Akka version: " + ActorSystem.Version());
 
 		// global actor system to start here
 		final String localSystemName = "LookupActorSystem"; // "RemoteActorSystem-Client";
 		final String remoteSystemName = "RemoteActorSystem";
-		final String remotePath = "akka.tcp://RemoteActorSystem@127.0.0.1:2552/user/";
-		System.out.println("remote actor system: " + remotePath);
+		final String remoteBasePath = "akka.tcp://RemoteActorSystem@127.0.0.1:2552/user/";
+		System.out.println("remote actor system base path: " + remoteBasePath);
+		final String remoteActorName = "greetingActor";  // "greeting_actor";
 
 		final ActorSystem system = // ActorSystem.create(localSystemName);
 			// ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig));
@@ -85,12 +102,22 @@ class AkkaRemoteClient {
 		// TODO: ... check settings, and then try to simplify url for actor selection (and keep the full version commented) ...
 
 		// TODO: create an actor in the  remote system (changes required even in config file) ...
-		// final ActorRef actor = system.actorOf(Props.create(GreetingActor.class, remotePath), "greeting_actor");
+		// final ActorRef actor = system.actorOf(Props.create(GreetingActor.class, remoteBasePath), remoteActorName);
+
+		/*
+		// lookup remote actor, but in a deprecated way ...
+		ActorRef actorRemote = system.actorFor(remoteBasePath + remoteActorName);  // TODO: check if it's still the right way ...
+		System.out.println("Get Actor Reference to remote GreetingActor: " + actorRemote);
+		assert actorRemote != null;
+		actorRemote.tell("Test String", null);
+		assert actorRemote != null;
+		 */
 
 
-		ActorSelection selection = // system.actorSelection(remotePath + "greeting_actor");
-			system.actorSelection(remotePath + "greeting_actor");  // TODO: check if/how to do this but with context ...
-		System.out.println("Get Actor Selection to GreetingActor: " + selection);
+		// lookup remote actor ...
+		ActorSelection selection = // system.actorSelection(remoteBasePath + remoteActorName);
+			system.actorSelection(remoteBasePath + remoteActorName);  // TODO: check if/how to do this but with context ...
+		System.out.println("Get Actor Selection to remote GreetingActor: " + selection);
 		assert selection != null;
 		selection.tell("Test String", null);
 		assert selection != null;

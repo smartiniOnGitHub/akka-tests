@@ -25,6 +25,7 @@ import java.io.Serializable;
  */
 
 public class Failure implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	final Throwable reason;
 
@@ -33,4 +34,7 @@ public class Failure implements Serializable {
         this.reason = reason;
     }
 
+	public Throwable getReason() {
+		return reason;
+	}
 }

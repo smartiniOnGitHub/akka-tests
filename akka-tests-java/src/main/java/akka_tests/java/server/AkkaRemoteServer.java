@@ -52,27 +52,52 @@ class AkkaRemoteServer {
 		System.out.println("setup: start at " + new java.util.Date() + ".");
 
 		// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
-		String akkaConfig = "akka {\n    loglevel = 'DEBUG'\n    daemonic = on\n    actor {\n    provider = 'akka.remote.RemoteActorRefProvider'\n    }\n    remote {\n    enabled-transports = ['akka.remote.netty.tcp']\n    netty.tcp {\n    hostname = '127.0.0.1'\n    port = 2552\n    }\n    log-sent-messages = on\n    log-received-messages = on\n    log-remote-lifecycle-events = on\n    log-frame-size-exceeding = on\n    }\n    }";
+		String akkaConfig = 
+			  "akka {\n"
+			+ "    loglevel = \"DEBUG\"\n"
+			+ "    daemonic = on # workaround to keep it running here\n"
+			+ "    actor {\n"
+			+ "        provider = \"akka.remote.RemoteActorRefProvider\"\n"
+			+ "    }\n"
+			+ "    remote {\n"
+			+ "        enabled-transports = [\"akka.remote.netty.tcp\"]\n"
+			+ "        netty.tcp {\n"
+			+ "            hostname = \"127.0.0.1\"\n"
+			+ "            # Server, listen on default Akka tcp port (2552)\n"
+			+ "            port = 2552\n"
+			+ "        }\n"
+			+ "        log-sent-messages = on\n"
+			+ "        log-received-messages = on\n"
+			+ "        log-remote-lifecycle-events = on\n"
+			+ "        log-frame-size-exceeding = on\n"
+			+ "        # log-buffer-size-exceeding = 50000\n"
+			+ "    }\n"
+			+ "}";
+		System.out.println("Akka Config: " + akkaConfig);
 
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		System.out.println("using Java ClassLoader: " + cl);
 		System.out.println("using Akka version: " + ActorSystem.Version());
 
 		// global actor system to start here
-		final String remoteSystemName = "RemoteActorSystem";
-		final ActorSystem system = // ActorSystem.create(remoteSystemName);
-			// ActorSystem.create(remoteSystemName, ConfigFactory.load(akkaConfig));
-			// ActorSystem.create(remoteSystemName, ConfigFactory.load(akkaConfig), cl);  // set a classloader
-			ActorSystem.create(remoteSystemName, ConfigFactory.load(akkaConfig));  // do not set a classloader when run from Gradle ...
-		System.out.println("using Akka Config: " + akkaConfig);
+		final String remotableSystemName = "RemoteActorSystem";
+		final ActorSystem system = // ActorSystem.create(remotableSystemName);
+			// ActorSystem.create(remotableSystemName, ConfigFactory.load(akkaConfig));
+			// ActorSystem.create(remotableSystemName, ConfigFactory.load(akkaConfig), cl);  // set a classloader
+			ActorSystem.create(remotableSystemName, ConfigFactory.load(akkaConfig));  // do not set a classloader when run from Gradle ...
 		System.out.println("system: " + system);
-		Props       props  = Props.create(GreetingActor.class);
-		System.out.println("props: $props");
+		System.out.println("system configuration: ");
+		// system.logConfiguration();  // log the real configuration of the system (could be different than akkaConfig) ...
+		Props       props  = 
+			// new Props(GreetingActor.class);  // deprecated ...
+			Props.create(GreetingActor.class);  // ok ...
+		System.out.println("props: " + props);
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("setup: end at " + new java.util.Date() + ".");
 
 		// create instance for some actors
-		ActorRef actor = system.actorOf(props, "greeting_actor");
+		final String remotableActorName = "greetingActor";  // "greeting_actor";
+		ActorRef actor = system.actorOf(props, remotableActorName);
 		System.out.println("Get Actor Reference to GreetingActor: " + actor);
 		// TODO: start more actors here ...
 
@@ -81,7 +106,7 @@ class AkkaRemoteServer {
 
 
 		System.out.println("check: start");
-		System.out.println("Actor System instance: $system");
+		System.out.println("Actor System instance: " + system);
 		assert system != null;
 		// get a reference to our greeting actor
 		System.out.println("props: " + props);
@@ -106,16 +131,16 @@ class AkkaRemoteServer {
 
 		/*
 		// TODO: make this application run, at least for one minute ...
-		sleep 10000  // wait a little, to see if remote connections are accepted in the mean time ...
+		sleep(10000);  // wait a little, to see if remote connections are accepted in the mean time ...
 		// system.awaitTermination()  // TODO: check if needed ...
 		 */
 
 		/*
 		// workaround, to keep this script running until user write a line of text
-		sleep 500  // workaround, mainly for flushing console output ...
-		System.out.println("\nHit ENTER to exit ...")
-		System.out.println("(note that when running in Groovy Console, the input is being read from the text console in the background)")
-		def quit = System.console()?.readLine()  // safer, when running in non-interactive mode (default) from Gradle ...
+		sleep(500);  // workaround, mainly for flushing console output ...
+		System.out.println("\nHit ENTER to exit ...");
+		System.out.println("(note that when running in Groovy Console, the input is being read from the text console in the background)");
+		String quit = System.console().readLine();  // safer, when running in non-interactive mode (default) from Gradle ...
 
 		system.shutdown();
 		 */
