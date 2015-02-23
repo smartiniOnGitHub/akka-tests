@@ -19,3 +19,37 @@ apply plugin: "java"
 dependencies {
 	compile project(":akka-tests-common")
 }
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-Xlint:deprecation"
+	options.compilerArgs << "-Xlint:unchecked"
+	// sourceCompatibility = "1.7"
+	// targetCompatibility = "1.7"
+}
+
+task runJavaApp(type: JavaExec) {
+	description 'Run Java Application, from the command line argument main'
+
+	// set classpath for running the Java application
+	classpath = sourceSets.main.runtimeClasspath
+
+	// set main property to name of Java class containing the main method
+	// main = ''
+
+	// set main property to name of Application script class
+	if (project.hasProperty('main')) {
+		main = project.getProperty('main')
+	}
+}
+
+task runJavaAkkaRemoteServer(type: JavaExec) {
+	description 'Run Java application of AkkaRemoteServer, for publishing actors available from remote'
+	classpath = sourceSets.main.runtimeClasspath
+	main = 'akka_tests.java.server.AkkaRemoteServer'
+}
+
+task runJavaAkkaRemoteClient(type: JavaExec) {
+	description 'Run Java application of AkkaRemoteClient, for using (consuming) actors available from the remote server'
+	classpath = sourceSets.main.runtimeClasspath
+	main = 'akka_tests.java.client.AkkaRemoteClient'
+}

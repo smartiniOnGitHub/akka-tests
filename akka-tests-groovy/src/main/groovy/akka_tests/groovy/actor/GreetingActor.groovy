@@ -26,7 +26,9 @@ import akka.actor.Props
 import akka.actor.UntypedActor
 import akka.event.Logging
 import akka.event.LoggingAdapter
-// import akka.testkit.JavaTestKit
+
+// import akka.testkit.JavaTestKit  // only for tests
+
 import scala.concurrent.duration.Duration
 
 /**
@@ -75,13 +77,13 @@ class GreetingActor extends UntypedActor
         {
             log.info(messageClassName + ": " + "Stop this actor now ...")
             // Stops this actor and all its supervised children
-            getContext().stop(getSelf())
+            getContext()?.stop(getSelf())
         }
         else if (message instanceof Shutdown)
         {
             log.info(messageClassName + ": " + "Shutdown this akka system now ...")
             // Shutdown the entire akka system
-            getContext.getSystem().shutdown()
+            getContext()?.system()?.shutdown()
         }
         else if (message instanceof Wait)
         {
@@ -94,13 +96,13 @@ class GreetingActor extends UntypedActor
             // because Thread.sleep breaks actors management as it will monopolize all threads of the used executor
             Thread.sleep(sleep)
             // note that probably instead it's needed something like this
-            // getContext.getSystem().getScheduler().scheduleOnce(sleep, sender, "Done")
+            // getContext.system().getScheduler().scheduleOnce(sleep, sender, "Done")
             long stopSleep = System.currentTimeMillis()
             log.info("Wait: " + "End Waiting, after " + (stopSleep - startSleep) + " milliseconds.")
          } else if (message instanceof ActorRef) {
             log.info("$messageClassName: Message from an ActorRef, now reply to it ...")
 			target = (ActorRef) message
-			getSender().tell("done", getSelf())
+			getSender()?.tell("done", getSelf())
 		}
         else
         {

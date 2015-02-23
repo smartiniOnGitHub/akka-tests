@@ -40,7 +40,7 @@ subprojects {
 		akkaVersion = '2.2.4'  // '2.3.9'
 		scalaSuffixVersion = '_2.10'  // '_2.11'
 
-		junitVersion = '4.12'
+		junitVersion = '[4,)'
 	}
 
 	dependencies {
@@ -59,13 +59,4 @@ task info << { task -> println "In $task.project.name" }
 task wrapper(type: Wrapper) {
 	gradleVersion = '2.3'
 }
-
-/*
-tasks.withType(JavaCompile) {
-	options.compilerArgs << "-Xlint:deprecation"
-	options.compilerArgs << "-Xlint:unchecked"
-	sourceCompatibility = "1.7"
-	targetCompatibility = "1.7"
-}
- */
 

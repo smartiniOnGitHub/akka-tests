@@ -23,7 +23,7 @@ import akka_tests.groovy.message.*
 // import org.junit.*
 
 import akka.actor.*
-import akka.testkit.*
+// import akka.testkit.*  // only for tests
 
 import com.typesafe.config.ConfigFactory
 
