@@ -25,6 +25,7 @@ import akka_tests.java.message.*;
 import akka.actor.*;
 // import akka.testkit.*;  // only for tests
 
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import scala.concurrent.duration.Duration;
@@ -55,7 +56,8 @@ class AkkaRemoteServer {
 		String akkaConfig = 
 			  "akka {\n"
 			+ "    loglevel = \"DEBUG\"\n"
-			+ "    daemonic = on # workaround to keep it running here\n"
+			// + "    log-config-on-start = on\n"
+			// + "    daemonic = on # workaround to not keep it running here\n"
 			+ "    actor {\n"
 			+ "        provider = \"akka.remote.RemoteActorRefProvider\"\n"
 			+ "    }\n"
@@ -78,15 +80,18 @@ class AkkaRemoteServer {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		System.out.println("using Java ClassLoader: " + cl);
 		System.out.println("using Akka version: " + ActorSystem.Version());
+		
+		Config config = // ConfigFactory.load();  // load from application.conf
+			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
 		final String remotableSystemName = "RemoteActorSystem";
 		final ActorSystem system = // ActorSystem.create(remotableSystemName);
-			// ActorSystem.create(remotableSystemName, ConfigFactory.load(akkaConfig));
-			// ActorSystem.create(remotableSystemName, ConfigFactory.load(akkaConfig), cl);  // set a classloader
-			ActorSystem.create(remotableSystemName, ConfigFactory.load(akkaConfig));  // do not set a classloader when run from Gradle ...
+			// ActorSystem.create(remotableSystemName, config);
+			// ActorSystem.create(remotableSystemName, config, cl);  // set a classloader
+			ActorSystem.create(remotableSystemName, config);  // do not set a classloader when run from Gradle ...
 		System.out.println("system: " + system);
-		System.out.println("system configuration: ");
+		// System.out.println("system configuration: ");
 		// system.logConfiguration();  // log the real configuration of the system (could be different than akkaConfig) ...
 		Props       props  = 
 			// new Props(GreetingActor.class);  // deprecated ...
@@ -108,6 +113,8 @@ class AkkaRemoteServer {
 		System.out.println("check: start");
 		System.out.println("Actor System instance: " + system);
 		assert system != null;
+		System.out.println("Actor System configuration: " + config);
+		assert config != null;
 		// get a reference to our greeting actor
 		System.out.println("props: " + props);
 		assert props != null;
@@ -123,6 +130,22 @@ class AkkaRemoteServer {
 		assert actor != null;
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check: end at " + new java.util.Date() + ".");
+
+
+		System.out.println("check (remote): start");
+		System.out.println("Actor System instance: " + system);
+		assert system != null;
+		// get a selection to our remote greeting actor
+		final String remoteSystemName = "RemoteActorSystem";
+		final String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
+		System.out.println("remote actor system base path: " + remoteBasePath);
+		final String remoteActorName = "greetingActor";  // "greeting_actor";
+		ActorSelection selection = 
+			system.actorSelection(remoteBasePath + remoteActorName);  // TODO: check if/how to do this but with context ...
+		assert selection != null;
+		selection.tell("Test Remote", null);
+		sleep(500);  // workaround, mainly for flushing console output ...
+		System.out.println("check (remote): end at " + new java.util.Date() + ".");
 
 
 		// system.tell("Start", null)  // TODO: temp ...

@@ -67,7 +67,7 @@ public class GreetingActor extends UntypedActor
         }
         else if (message instanceof Greeting)
         {
-            log.info(messageClassName + ": Hello \"" + ((Greeting) message).getWho() + "\"");
+			log.info(messageClassName + ": Hello \"" + ((Greeting) message).getWho() + "\"");
         }
         // else if (message instanceof BaseMessage)  // but it's abstract ...
         // {
@@ -100,16 +100,20 @@ public class GreetingActor extends UntypedActor
             long stopSleep = System.currentTimeMillis();
             log.info("Wait: " + "End Waiting, after " + (stopSleep - startSleep) + " milliseconds.");
          } else if (message instanceof ActorRef) {
-            log.info("$messageClassName: Message from an ActorRef, now reply to it ...");
+            log.info(messageClassName + ": Message from an ActorRef, now reply to it ...");
 			target = (ActorRef) message;
 			getSender().tell("done", getSelf());
+		} 
+		else if (message instanceof String)
+        {
+			log.info(messageClassName + ": \"" + message.toString() + "\"");
 		}
         else
         {
             if (message != null)
-				log.warning("Unknown message type $messageClassName, contents: \"" + message.toString() + "\"");
+				log.warning("Unknown message type " + messageClassName + ", contents: \"" + message.toString() + "\"");
 			else
-				log.warning("Unknown message type $messageClassName, message is null");
+				log.warning("Unknown message type " + messageClassName + ", message is null");
 
             unhandled(message);
         }

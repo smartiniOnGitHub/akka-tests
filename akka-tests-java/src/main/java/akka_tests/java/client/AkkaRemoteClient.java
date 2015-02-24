@@ -25,6 +25,7 @@ import akka_tests.java.message.*;
 import akka.actor.*;
 // import akka.testkit.*;  // only for tests
 
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import scala.concurrent.duration.Duration;
@@ -55,6 +56,7 @@ class AkkaRemoteClient {
 		String akkaConfig = 
 			  "akka {\n"
 			+ "    loglevel = \"DEBUG\"\n"
+			// + "    log-config-on-start = on\n"
 			+ "    actor {\n"
 			+ "        provider = \"akka.remote.RemoteActorRefProvider\"\n"
 			+ "    }\n"
@@ -69,21 +71,25 @@ class AkkaRemoteClient {
 			+ "        log-received-messages = on\n"
 			+ "    }\n"
 			+ "}";
+		System.out.println("Akka Config: " + akkaConfig);
 
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		System.out.println("using Java ClassLoader: " + cl);
 		System.out.println("using Akka version: " + ActorSystem.Version());
+
+		Config config = // ConfigFactory.load();  // load from application.conf
+			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
 		final String localSystemName = "LookupActorSystem"; // "RemoteActorSystem-Client";
 		final String remoteSystemName = "RemoteActorSystem";
-		final String remoteBasePath = "akka.tcp://RemoteActorSystem@127.0.0.1:2552/user/";
+		final String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
 		System.out.println("remote actor system base path: " + remoteBasePath);
 		final String remoteActorName = "greetingActor";  // "greeting_actor";
 
-		final ActorSystem system = // ActorSystem.create(localSystemName);
-			// ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig));
-			ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig));  // do not set another classloader when run from Gradle ...
-			// ActorSystem.create(localSystemName);  // simplified version, good the same for a local system, using defaults
-		System.out.println("using Akka Config: " + akkaConfig);
+		final ActorSystem system = // ActorSystem.create(localSystemName);  // default version, good the same but only for a local system, using default settings
+			// ActorSystem.create(localSystemName, config, cl);  // set a classloader
+			ActorSystem.create(localSystemName, config);  // do not set another classloader when run from Gradle ...
 		System.out.println("system: " + system);
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("setup: end at " + new java.util.Date() + ".");
