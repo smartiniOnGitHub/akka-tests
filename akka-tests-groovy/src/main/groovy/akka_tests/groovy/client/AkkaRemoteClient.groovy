@@ -25,6 +25,7 @@ import akka_tests.groovy.message.*
 import akka.actor.*
 // import akka.testkit.*  // only for tests
 
+import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration.Duration
@@ -44,39 +45,43 @@ class AkkaRemoteClient {
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
 		def akkaConfig = '''
 		akka {
-		  loglevel = 'DEBUG'
-		  actor {
-			provider = 'akka.remote.RemoteActorRefProvider'
-		  }
-		  remote {
-			# enabled-transports = ['akka.remote.netty.tcp']
-			netty.tcp {
-			  hostname = '127.0.0.1'
-			  # Client, use a different port than server (2552)
-			  # port = 2553
-			  port = 0
+			loglevel = 'DEBUG'
+			# log-config-on-start = on
+			actor {
+				provider = 'akka.remote.RemoteActorRefProvider'
 			}
-			log-sent-messages = on
-			log-received-messages = on
-		  }
+			remote {
+				# enabled-transports = ['akka.remote.netty.tcp']
+				netty.tcp {
+					hostname = '127.0.0.1'
+					# Client, use a different port than server (2552)
+					# port = 2553
+					port = 0
+				}
+				log-sent-messages = on
+				log-received-messages = on
+			}
 		}
 		'''
+		println("Akka Config: $akkaConfig")
+
 		def cl = this.class.classLoader
 		println("using Groovy ClassLoader: $cl")
 		println("using Akka version: ${ActorSystem.Version()}")
 
-		// global actor system to start here
-		final String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client"
-		final String remoteSystemName = "RemoteActorSystem"
-		final String remotePath = "akka.tcp://RemoteActorSystem@127.0.0.1:2552/user/"
-		println("remote actor system: $remotePath")
+		Config config = // ConfigFactory.load();  // load from application.conf
+			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
 
-		final ActorSystem system = // ActorSystem.create(localSystemName)
-			// ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig))
-			// ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig), cl)  // set Groovy classloader
-			ActorSystem.create(localSystemName, ConfigFactory.load(akkaConfig))  // do not set Groovy classloader when run from Gradle ...
-			// ActorSystem.create(localSystemName)  // simplified version, good the same for a local system, using defaults
-		println("using Akka Config: $akkaConfig")
+		// global actor system to start here
+		final String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client";
+		final String remoteSystemName = "RemoteActorSystem"
+		final String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/"
+		println("remote actor system base path: " + remoteBasePath)
+		final String remoteActorName = "greetingActor"  // "greeting_actor"
+
+		final ActorSystem system = // ActorSystem.create(localSystemName)// default version, good the same but only for a local system, using default settings
+			// ActorSystem.create(localSystemName, config, cl)  // set a classloader
+			ActorSystem.create(localSystemName, config)  // do not set Groovy classloader when run from Gradle ...
 		println("system: $system")
 		sleep 500  // workaround, mainly for flushing console output ...
 		println("setup: end at ${new Date()}.")
@@ -95,11 +100,11 @@ class AkkaRemoteClient {
 		// TODO: ... check settings, and then try to simplify url for actor selection (and keep the full version commented) ...
 
 		// TODO: create an actor in the  remote system (changes required even in config file) ...
-		// final ActorRef actor = system.actorOf(Props.create(GreetingActor.class, remotePath), "greeting_actor");
+		// final ActorRef actor = system.actorOf(Props.create(GreetingActor.class, remoteBasePath), remoteActorName)
 
 
-		ActorSelection selection = // system.actorSelection(remotePath + "greeting_actor")
-			system.actorSelection(remotePath + "greeting_actor")  // TODO: check if/how to do this but with context ...
+		ActorSelection selection = // system.actorSelection(remoteBasePath + remoteActorName)
+			system.actorSelection(remoteBasePath + remoteActorName)  // TODO: check if/how to do this but with context ...
 		println("Get Actor Selection to GreetingActor: $selection")
 		assert selection != null
 		selection.tell("Test String", null)

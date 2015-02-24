@@ -104,6 +104,10 @@ class GreetingActor extends UntypedActor
 			target = (ActorRef) message
 			getSender()?.tell("done", getSelf())
 		}
+		else if (message instanceof String)
+        {
+            log.info("$messageClassName: ${message.toString()}")
+		}
         else
         {
             log.warning("Unknown message type $messageClassName, contents: \"" + message?.toString() + "\"")
