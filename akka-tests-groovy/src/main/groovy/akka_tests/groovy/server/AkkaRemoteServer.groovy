@@ -37,7 +37,7 @@ import scala.concurrent.duration.Duration
 class AkkaRemoteServer {
   
 	static void main(def args) {
-		println("Application: Start a simple server console application for creating some Akka Actors and make them reachable from other (remote) processes\n")
+		println("Application: main, start a simple server console application for creating some Akka Actors and make them reachable from other (remote) processes\n")
 
 		// setup phase
 		println("setup: start at ${new Date()}.")
@@ -45,7 +45,7 @@ class AkkaRemoteServer {
 		// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
         def akkaConfig = '''\
             akka {
-                loglevel = "DEBUG"
+                loglevel = "INFO"
                 # log-config-on-start = on
                 # daemonic = on # workaround to not keep it running here
                 actor {
@@ -82,7 +82,7 @@ class AkkaRemoteServer {
 			ConfigFactory.parseString(akkaConfig)  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
-		final String remotableSystemName = "RemoteActorSystem"
+		String remotableSystemName = "RemoteActorSystem"
 		final ActorSystem system = // ActorSystem.create(remotableSystemName)
 			// ActorSystem.create(remotableSystemName, config)  // default version, good here
 			// ActorSystem.create(remotableSystemName, config, cl)  // set a classloader
@@ -106,34 +106,33 @@ class AkkaRemoteServer {
 		println("check: start")
 		println("Actor System instance: $system")
 		assert system != null
-		// get a reference to our greeting actor
+		// get a new reference to our greeting actor, to ensure all is good
 		println("props: $props")
 		assert props != null
 		actor = system.actorOf(props);
 		println("Actor Reference instance is: $actor")
 		assert actor != null
 		// send some test messages to the actor
+		actor.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		actor.tell(new Greeting("Test Greeting"), null)
-		assert actor != null
 		actor.tell(new String("Test String"), null)
-		assert actor != null
 		actor.tell(new GenericMessage<String>("simple generic message with a String"), null)
-		assert actor != null
 		sleep 500  // workaround, mainly for flushing console output ...
 		println("check: end at ${new Date()}.")
 
 
 		println("check (remote): start");
+// TODO: check if must be done from another system ...
 		println("Actor System instance: $system")
 		assert system != null
 		// get a selection to our remote greeting actor
-		final String remoteSystemName = "RemoteActorSystem"
-		final String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/"
+		String remoteSystemName = "RemoteActorSystem"
+		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/"
 		println("remote actor system base path: $remoteBasePath")
-		final String remoteActorName = "greetingActor"  // "greeting_actor"
-		ActorSelection selection = 
-			system.actorSelection(remoteBasePath + remoteActorName)  // TODO: check if/how to do this but with context ...
+		String remoteActorName = "greetingActor"  // "greeting_actor"
+		ActorSelection selection = system.actorSelection(remoteBasePath + remoteActorName)
 		assert selection != null
+		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		selection.tell("Test Remote", null)
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check (remote): end at " + new java.util.Date() + ".")
@@ -151,7 +150,7 @@ class AkkaRemoteServer {
 // TODO: (later) make a little cleanup to move features into methods ...
 
 
-		println("\nApplication: execution end at ${new Date()}.")  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...
+		println("\nApplication: main, end at ${new Date()}.")  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...
 	}
 
 }

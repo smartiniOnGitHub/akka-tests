@@ -37,31 +37,31 @@ import scala.concurrent.duration.Duration
 class AkkaRemoteClient {
   
 	static void main(def args) {
-		println("Application: Start a simple console application for using (consuming) some Akka Actors published by the (remote) server application (it must be running)\n")
+		println("Application: main, start a simple console application for using (consuming) some Akka Actors published by the (remote) server application (it must be running)\n")
 
 		// setup phase
 		println("setup: start at ${new Date()}.")
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
-		def akkaConfig = '''
-		akka {
-			loglevel = "DEBUG"
-			# log-config-on-start = on
-			actor {
-				provider = "akka.remote.RemoteActorRefProvider"
-			}
-			remote {
-				# enabled-transports = ["akka.remote.netty.tcp"]
-				netty.tcp {
-					hostname = "127.0.0.1"
-					# Client, use a different port than server (2552)
-					# port = 2553
-					port = 0
+		def akkaConfig = '''\
+			akka {
+				loglevel = "INFO"
+				# log-config-on-start = on
+				actor {
+					provider = "akka.remote.RemoteActorRefProvider"
 				}
-				log-sent-messages = on
-				log-received-messages = on
+				remote {
+					# enabled-transports = ["akka.remote.netty.tcp"]
+					netty.tcp {
+						hostname = "127.0.0.1"
+						# Client, use a different port than server (2552)
+						# port = 2553
+						port = 0
+					}
+					log-sent-messages = on
+					log-received-messages = on
+				}
 			}
-		}
 		'''
 		println("Akka Config: $akkaConfig")
 
@@ -73,11 +73,11 @@ class AkkaRemoteClient {
 			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
-		final String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client";
-		final String remoteSystemName = "RemoteActorSystem"
-		final String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/"
+		String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client";
+		String remoteSystemName = "RemoteActorSystem"
+		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/"
 		println("remote actor system base path: " + remoteBasePath)
-		final String remoteActorName = "greetingActor"  // "greeting_actor"
+		String remoteActorName = "greetingActor"  // "greeting_actor"
 
 		final ActorSystem system = // ActorSystem.create(localSystemName)// default version, good the same but only for a local system, using default settings
 			// ActorSystem.create(localSystemName, config)  // default version, good here
@@ -105,24 +105,18 @@ class AkkaRemoteClient {
 
 
 		ActorSelection selection = // system.actorSelection(remoteBasePath + remoteActorName)
-			system.actorSelection(remoteBasePath + remoteActorName)  // TODO: check if/how to do this but with context ...
+			system.actorSelection(remoteBasePath + remoteActorName)
 		println("Get Actor Selection to GreetingActor: $selection")
 		assert selection != null
-		selection.tell("Test String", null)
-		assert selection != null
-
-		// TODO: get ActorRef actor from selection, sending a (via identify or similar) message to the selection and use the getSender reference of the reply from the actor ...
-
-		/*
 		// send some test messages to the actor
-		actor.tell(new Greeting("Test Greeting"), null)
-		assert actor != null
-		actor.tell(new String("Test String"), null)
-		assert actor != null
-		actor.tell(new GenericMessage<String>("simple generic message with a String"), null)
-		assert actor != null
-		 */
+		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		selection.tell("Test String", null)
+		selection.tell(new Greeting("Test Greeting"), null)
+		selection.tell(new String("Test String"), null)
+		selection.tell(new GenericMessage<String>("simple generic message with a String"), null)
 
+
+		sleep 500  // workaround, mainly for flushing console output ...
 		system.shutdown()
 		sleep 500  // workaround, mainly for flushing console output ...
 
@@ -130,7 +124,7 @@ class AkkaRemoteClient {
 // TODO: (later) make a little cleanup to move features into methods ...
 
 
-		println("\nApplication: execution end at ${new Date()}.")
+		println("\nApplication: main, end at ${new Date()}.")
 	}
 
 }

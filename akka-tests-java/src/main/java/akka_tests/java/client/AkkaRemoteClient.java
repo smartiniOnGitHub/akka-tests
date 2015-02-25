@@ -47,7 +47,7 @@ class AkkaRemoteClient {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("Application: Start a simple console application for using (consuming) some Akka Actors published by the (remote) server application (it must be running)\n");
+		System.out.println("Application: main, start a simple console application for using (consuming) some Akka Actors published by the (remote) server application (it must be running)\n");
 
 		// setup phase
 		System.out.println("setup: start at " + new java.util.Date() + ".");
@@ -56,11 +56,11 @@ class AkkaRemoteClient {
         // note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
 		String akkaConfig = "" +
             "akka {\n" +
-			"    loglevel = \"DEBUG\"\n" +
+			"    loglevel = \"INFO\"\n" +
 			// "    log-config-on-start = on\n" +
-			"    actor {\n" +
-			"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
-			"    }\n" +
+			// "    actor {\n" +
+			// "        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
+			// "    }\n" +
 			"    remote {\n" +
 			"        netty.tcp {\n" +
 			"            hostname = \"127.0.0.1\"\n" +
@@ -104,44 +104,23 @@ class AkkaRemoteClient {
 		System.out.println("check: end at " + new java.util.Date() + ".");
 		System.out.println("Client ready ...");
 
-		// TODO: make some call ...
+
 		// get reference and then call some remote actors
-
-		// TODO: ... check settings, and then try to simplify url for actor selection (and keep the full version commented) ...
-
-		// TODO: create an actor in the  remote system (changes required even in config file) ...
-		// final ActorRef actor = system.actorOf(Props.create(GreetingActor.class, remoteBasePath), remoteActorName);
-
-		/*
-		// lookup remote actor, but in a deprecated way ...
-		ActorRef actorRemote = system.actorFor(remoteBasePath + remoteActorName);  // TODO: check if it's still the right way ...
-		System.out.println("Get Actor Reference to remote GreetingActor: " + actorRemote);
-		assert actorRemote != null;
-		actorRemote.tell("Test String", null);
-		assert actorRemote != null;
-		 */
-
 
 		// lookup remote actor ...
 		ActorSelection selection = // system.actorSelection(remoteBasePath + remoteActorName);
-			system.actorSelection(remoteBasePath + remoteActorName);  // TODO: check if/how to do this but with context ...
+			system.actorSelection(remoteBasePath + remoteActorName);
 		System.out.println("Get Actor Selection to remote GreetingActor: " + selection);
 		assert selection != null;
-		selection.tell("Test String", null);
-		assert selection != null;
-
-		// TODO: get ActorRef actor from selection, sending a (via identify or similar) message to the selection and use the getSender reference of the reply from the actor ...
-
-		/*
 		// send some test messages to the actor
-		actor.tell(new Greeting("Test Greeting"), null);
-		assert actor != null;
-		actor.tell(new String("Test String"), null);
-		assert actor != null;
-		actor.tell(new GenericMessage<String>("simple generic message with a String"), null);
-		assert actor != null;
-		 */
+		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		selection.tell("Test String", null);
+		selection.tell(new Greeting("Test Greeting"), null);
+		selection.tell(new String("Test String"), null);
+		selection.tell(new GenericMessage<String>("simple generic message with a String"), null);
 
+
+		sleep(500);  // workaround, mainly for flushing console output ...
 		system.shutdown();
 		sleep(500);  // workaround, mainly for flushing console output ...
 
@@ -149,7 +128,7 @@ class AkkaRemoteClient {
 // TODO: (later) make a little cleanup to move features into methods ...
 
 
-		System.out.println("\nApplication: execution end at " + new java.util.Date() + ".");
+		System.out.println("\nApplication: main, end at " + new java.util.Date() + ".");
 	}
 
 }

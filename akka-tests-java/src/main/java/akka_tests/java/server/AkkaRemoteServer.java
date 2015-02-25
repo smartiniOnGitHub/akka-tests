@@ -47,7 +47,7 @@ class AkkaRemoteServer {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("Application: Start a simple server console application for creating some Akka Actors and make them reachable from other (remote) processes\n");
+		System.out.println("Application: main, start a simple server console application for creating some Akka Actors and make them reachable from other (remote) processes\n");
 
 		// setup phase
 		System.out.println("setup: start at " + new java.util.Date() + ".");
@@ -56,7 +56,7 @@ class AkkaRemoteServer {
         // note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
 		String akkaConfig = "" +
             "akka {\n" +
-            "    loglevel = \"DEBUG\"\n" +
+            "    loglevel = \"INFO\"\n" +
             // "    log-config-on-start = on\n" +
             // "    daemonic = on # workaround to not keep it running here\n" +
             "    actor {\n" +
@@ -111,29 +111,28 @@ class AkkaRemoteServer {
 		System.out.println("setup: end at " + new java.util.Date() + ".");
 
 
-		System.out.println("check: start");
+		System.out.println("check: start at " + new java.util.Date() + ".");
 		System.out.println("Actor System instance: " + system);
 		assert system != null;
 		System.out.println("Actor System configuration: " + config);
 		assert config != null;
-		// get a reference to our greeting actor
+		// get a new reference to our greeting actor, to ensure all is good
 		System.out.println("props: " + props);
 		assert props != null;
 		actor = system.actorOf(props);
 		System.out.println("Actor Reference instance is: " + actor);
 		assert actor != null;
 		// send some test messages to the actor
+		actor.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		actor.tell(new Greeting("Test Greeting"), null);
-		assert actor != null;
 		actor.tell(new String("Test String"), null);
-		assert actor != null;
 		actor.tell(new GenericMessage<String>("simple generic message with a String"), null);
-		assert actor != null;
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check: end at " + new java.util.Date() + ".");
 
 
-		System.out.println("check (remote): start");
+		System.out.println("check (remote): start at " + new java.util.Date() + ".");
+// TODO: check if must be done from another system ...
 		System.out.println("Actor System instance: " + system);
 		assert system != null;
 		// get a selection to our remote greeting actor
@@ -141,9 +140,9 @@ class AkkaRemoteServer {
 		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
 		System.out.println("remote actor system base path: " + remoteBasePath);
 		String remoteActorName = "greetingActor";  // "greeting_actor";
-		ActorSelection selection = 
-			system.actorSelection(remoteBasePath + remoteActorName);  // TODO: check if/how to do this but with context ...
+		ActorSelection selection = system.actorSelection(remoteBasePath + remoteActorName);
 		assert selection != null;
+		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		selection.tell("Test Remote", null);
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check (remote): end at " + new java.util.Date() + ".");
@@ -160,7 +159,7 @@ class AkkaRemoteServer {
 // TODO: (later) make a little cleanup to move features into methods ...
 
 
-		System.out.println("\nApplication: execution end at " + new java.util.Date() + ".");  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...
+		System.out.println("\nApplication: main, end at " + new java.util.Date() + ".");  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...
 	}
 
 }
