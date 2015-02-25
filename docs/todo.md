@@ -3,7 +3,6 @@ akka-tests - TODO
 
 TODO
 ----
-- general: (java, groovy, scala) check if the client must run with remoting enabled even only for lookup/use remote actors ... wip
 - general: (java, groovy, scala) ensure that clients are able to use remote actors ... wip
 - general: update dependencies on latest Akka-2.3.x and ensure all works with it ...
 - general: add utility methods to simplify interaction with actors, then maybe factorize them in the common sub-project ...
@@ -44,6 +43,8 @@ DONE
 - general: in Gradle tasks, put a description on my tasks, and on what can be run, for simpler usage ... ok
 - general: set dependencies on latest Akka-2.2.x and ensure all works with it (at least remoting from all subprojects) ... ok
 - general: add samples to get ActorRef from ActorSelection (via Identify messages) ... done (but partial)
+- general: empty sender (in messages to actors, via tell), use ActorRef.noSender() instead of null ... ok
+- general: (java, groovy, scala) check if the client must run with remoting enabled even only for lookup/use remote actors ... yes (it seems)
 
 - akka-tests-groovy: check how (if possible) to add .gsh (or .groovy) scripts and where to put them ... maybe in a dedicated folders like scripts, but Gradle builds need to be aware of this ... see later
 - akka-tests-groovy: Groovy scripts, check if add dependencies to akka with Groovy @Grab annotations ... maybe in scripts

@@ -35,7 +35,11 @@ import scala.concurrent.duration.Duration
  * Simple Groovy client application for using (consuming) some Akka Actors published by the (remote) server application
  */
 class AkkaRemoteClient {
-  
+
+	// useful reference to empty sender actor, use this instead of null ...
+	private static final ActorRef ACTOR_NO_SENDER = ActorRef.noSender()  // = null
+
+
 	static void main(def args) {
 		println("Application: main, start a simple console application for using (consuming) some Akka Actors published by the (remote) server application (it must be running)\n")
 
@@ -43,23 +47,13 @@ class AkkaRemoteClient {
 		println("setup: start at ${new Date()}.")
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
+		// if the client run on the same host of the server (default port is 2552), be sure to use a different port like 2553 or 0 (random) ...
 		def akkaConfig = '''\
 			akka {
 				loglevel = "INFO"
 				# log-config-on-start = on
 				actor {
 					provider = "akka.remote.RemoteActorRefProvider"
-				}
-				remote {
-					# enabled-transports = ["akka.remote.netty.tcp"]
-					netty.tcp {
-						hostname = "127.0.0.1"
-						# Client, use a different port than server (2552)
-						# port = 2553
-						port = 0
-					}
-					log-sent-messages = on
-					log-received-messages = on
 				}
 			}
 		'''
@@ -69,11 +63,11 @@ class AkkaRemoteClient {
 		println("using Groovy ClassLoader: $cl")
 		println("using Akka version: ${ActorSystem.Version()}")
 
-		Config config = // ConfigFactory.load();  // load from application.conf
-			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
+		Config config = // ConfigFactory.load()  // load from application.conf
+			ConfigFactory.parseString(akkaConfig)  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
-		String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client";
+		String localSystemName = "LookupActorSystem" // "RemoteActorSystem-Client"
 		String remoteSystemName = "RemoteActorSystem"
 		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/"
 		println("remote actor system base path: " + remoteBasePath)
@@ -109,11 +103,11 @@ class AkkaRemoteClient {
 		println("Get Actor Selection to GreetingActor: $selection")
 		assert selection != null
 		// send some test messages to the actor
-		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
-		selection.tell("Test String", null)
-		selection.tell(new Greeting("Test Greeting"), null)
-		selection.tell(new String("Test String"), null)
-		selection.tell(new GenericMessage<String>("simple generic message with a String"), null)
+		selection.tell(new Identify(null), ACTOR_NO_SENDER)  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		selection.tell("Test String", ACTOR_NO_SENDER)
+		selection.tell(new Greeting("Test Greeting"), ACTOR_NO_SENDER)
+		selection.tell(new String("Test String"), ACTOR_NO_SENDER)
+		selection.tell(new GenericMessage<String>("simple generic message with a String"), ACTOR_NO_SENDER)
 
 
 		sleep 500  // workaround, mainly for flushing console output ...

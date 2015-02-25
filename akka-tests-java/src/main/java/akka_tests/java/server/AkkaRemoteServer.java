@@ -36,6 +36,10 @@ import scala.concurrent.duration.Duration;
  */
 class AkkaRemoteServer {
 
+	// useful reference to empty sender actor, use this instead of null ...
+	private static final ActorRef ACTOR_NO_SENDER = ActorRef.noSender();  // = null;
+
+
 	// Utility method
 	public static final void sleep(long msec) {
         assert msec >= 0 : "Sleep time must be 0 or positive.";
@@ -123,10 +127,10 @@ class AkkaRemoteServer {
 		System.out.println("Actor Reference instance is: " + actor);
 		assert actor != null;
 		// send some test messages to the actor
-		actor.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
-		actor.tell(new Greeting("Test Greeting"), null);
-		actor.tell(new String("Test String"), null);
-		actor.tell(new GenericMessage<String>("simple generic message with a String"), null);
+		actor.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		actor.tell(new Greeting("Test Greeting"), ACTOR_NO_SENDER);
+		actor.tell(new String("Test String"), ACTOR_NO_SENDER);
+		actor.tell(new GenericMessage<String>("simple generic message with a String"), ACTOR_NO_SENDER);
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check: end at " + new java.util.Date() + ".");
 
@@ -142,8 +146,8 @@ class AkkaRemoteServer {
 		String remoteActorName = "greetingActor";  // "greeting_actor";
 		ActorSelection selection = system.actorSelection(remoteBasePath + remoteActorName);
 		assert selection != null;
-		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
-		selection.tell("Test Remote", null);
+		selection.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		selection.tell("Test Remote", ACTOR_NO_SENDER);
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check (remote): end at " + new java.util.Date() + ".");
 

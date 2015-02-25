@@ -36,6 +36,10 @@ import scala.concurrent.duration.Duration;
  */
 class AkkaRemoteClient {
 
+	// useful reference to empty sender actor, use this instead of null ...
+	private static final ActorRef ACTOR_NO_SENDER = ActorRef.noSender();  // = null;
+
+
 	// Utility method
 	public static final void sleep(long msec) {
         assert msec >= 0 : "Sleep time must be 0 or positive.";
@@ -53,23 +57,14 @@ class AkkaRemoteClient {
 		System.out.println("setup: start at " + new java.util.Date() + ".");
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
+		// if the client run on the same host of the server (default port is 2552), be sure to use a different port like 2553 or 0 (random) ...
         // note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
 		String akkaConfig = "" +
             "akka {\n" +
 			"    loglevel = \"INFO\"\n" +
 			// "    log-config-on-start = on\n" +
-			// "    actor {\n" +
-			// "        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
-			// "    }\n" +
-			"    remote {\n" +
-			"        netty.tcp {\n" +
-			"            hostname = \"127.0.0.1\"\n" +
-			"            # Client, use a different port than server (2552)\n" +
-			"            # port = 2553\n" +
-			"            port = 0\n" +
-			"        }\n" +
-			"        log-sent-messages = on\n" +
-			"        log-received-messages = on\n" +
+			"    actor {\n" +
+			"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
 			"    }\n" +
 			"}";
 		System.out.println("Akka Config: " + akkaConfig);
@@ -113,11 +108,11 @@ class AkkaRemoteClient {
 		System.out.println("Get Actor Selection to remote GreetingActor: " + selection);
 		assert selection != null;
 		// send some test messages to the actor
-		selection.tell(new Identify(null), null);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
-		selection.tell("Test String", null);
-		selection.tell(new Greeting("Test Greeting"), null);
-		selection.tell(new String("Test String"), null);
-		selection.tell(new GenericMessage<String>("simple generic message with a String"), null);
+		selection.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		selection.tell("Test String", ACTOR_NO_SENDER);
+		selection.tell(new Greeting("Test Greeting"), ACTOR_NO_SENDER);
+		selection.tell(new String("Test String"), ACTOR_NO_SENDER);
+		selection.tell(new GenericMessage<String>("simple generic message with a String"), ACTOR_NO_SENDER);
 
 
 		sleep(500);  // workaround, mainly for flushing console output ...
