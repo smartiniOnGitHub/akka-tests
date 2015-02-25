@@ -89,6 +89,7 @@ class AkkaRemoteClient {
 		String remoteActorName = "greetingActor";  // "greeting_actor";
 
 		final ActorSystem system = // ActorSystem.create(localSystemName);  // default version, good the same but only for a local system, using default settings
+			// ActorSystem.create(localSystemName, config);  // default version, good here
 			// ActorSystem.create(localSystemName, config, cl);  // set a classloader
 			ActorSystem.create(localSystemName, config);  // do not set another classloader when run from Gradle ...
 		System.out.println("system: " + system);

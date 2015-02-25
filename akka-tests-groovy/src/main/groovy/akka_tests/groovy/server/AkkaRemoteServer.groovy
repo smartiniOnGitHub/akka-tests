@@ -43,54 +43,29 @@ class AkkaRemoteServer {
 		println("setup: start at ${new Date()}.")
 
 		// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
-		/*
-		def akkaConfig = '''\
-			akka {
-				loglevel = 'DEBUG'
-				# log-config-on-start = on
-				# daemonic = on # workaround to not keep it running here
-				actor {
-					provider = 'akka.remote.RemoteActorRefProvider'
-				}
-				remote {
-					enabled-transports = ['akka.remote.netty.tcp']
-					netty.tcp {
-						hostname = '127.0.0.1'
-						# Sever, listen on default Akka tcp port (2552)
-						port = 2552
-					}
-					log-sent-messages = on
-					log-received-messages = on
-					log-remote-lifecycle-events = on
-					log-frame-size-exceeding = on
-					# log-buffer-size-exceeding = 50000
-				}
-			}
-		'''
-		 */
-        // multiline strings in Groovy: to use Java-like syntax, put + at the end of lines, and not at the beginning (of next lines) ...
-		String akkaConfig = "" +
-            "akka {\n" +
-            "    loglevel = \"DEBUG\"\n" +
-            // "    log-config-on-start = on\n" +
-            // "    daemonic = on # workaround to not keep it running here\n" +
-            "    actor {\n" +
-            "        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
-            "    }\n" +
-            "    remote {\n" +
-            "        enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
-            "        netty.tcp {\n" +
-            "            hostname = \"127.0.0.1\"\n" +
-            "            # Server, listen on default Akka tcp port (2552)\n" +
-            "            port = 2552\n" +
-            "        }\n" +
-            "        log-sent-messages = on\n" +
-            "        log-received-messages = on\n" +
-            "        log-remote-lifecycle-events = on\n" +
-            "        log-frame-size-exceeding = on\n" +
-            "        # log-buffer-size-exceeding = 50000\n" +
-            "    }\n" +
-            "}"
+        def akkaConfig = '''\
+            akka {
+                loglevel = "DEBUG"
+                # log-config-on-start = on
+                # daemonic = on # workaround to not keep it running here
+                actor {
+                    provider = "akka.remote.RemoteActorRefProvider"
+                }
+                remote {
+                    enabled-transports = ["akka.remote.netty.tcp"]
+                    netty.tcp {
+                        hostname = "127.0.0.1"
+                        # Sever, listen on default Akka tcp port (2552)
+                        port = 2552
+                    }
+                    log-sent-messages = on
+                    log-received-messages = on
+                    log-remote-lifecycle-events = on
+                    log-frame-size-exceeding = on
+                    # log-buffer-size-exceeding = 50000
+                }
+            }
+        '''
 		println("Akka Config: $akkaConfig");
 		assert akkaConfig instanceof String  // DEBUG
 
@@ -100,7 +75,6 @@ class AkkaRemoteServer {
 			// this.class.classLoader?.rootLoader ?: new GroovyClassLoader()  // Groovy root Classloader or a Groovy Classloader
 			// ClassLoader.systemClassLoader  // Groovy system classloader
 			// Thread.currentThread().getContextClassLoader()  // a classic Java Classloader
-// TODO: fix it, check if it's due to run inside Gradle ...
 		println("using Groovy ClassLoader: $cl")
 		println("using Akka version: ${ActorSystem.Version()}")
 
@@ -110,10 +84,9 @@ class AkkaRemoteServer {
 		// global actor system to start here
 		final String remotableSystemName = "RemoteActorSystem"
 		final ActorSystem system = // ActorSystem.create(remotableSystemName)
-			// ActorSystem.create(remotableSystemName, config)
-			// ActorSystem.create(remotableSystemName, config, cl)  // set s classloader
-			// ActorSystem.create(remotableSystemName, config)  // do not set a custom classloader when run from Gradle ...
-			ActorSystem.create(remotableSystemName, config, cl)  // set a classloader
+			// ActorSystem.create(remotableSystemName, config)  // default version, good here
+			// ActorSystem.create(remotableSystemName, config, cl)  // set a classloader
+			ActorSystem.create(remotableSystemName, config)  // do not set a custom classloader when run from Gradle ...
 		println("system: $system")
 		// println("system configuration: ")
 		// system.logConfiguration()  // log the real configuration of the system (could be different than akkaConfig) ...
@@ -167,7 +140,7 @@ class AkkaRemoteServer {
 
 
 		// system.tell("Start", null)  // TODO: temp ...
-		println("Server ready ...")
+		println("\nServer ready ...")
 
 
 		// sleep 500  // workaround, mainly for flushing console output ...
@@ -178,7 +151,7 @@ class AkkaRemoteServer {
 // TODO: (later) make a little cleanup to move features into methods ...
 
 
-		println("\nApplication: execution end at ${new Date()}.")  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution ...
+		println("\nApplication: execution end at ${new Date()}.")  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...
 	}
 
 }

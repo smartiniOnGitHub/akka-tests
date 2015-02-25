@@ -88,7 +88,7 @@ class AkkaRemoteServer {
 		// global actor system to start here
 		String remotableSystemName = "RemoteActorSystem";
 		final ActorSystem system = // ActorSystem.create(remotableSystemName);
-			// ActorSystem.create(remotableSystemName, config);
+			// ActorSystem.create(remotableSystemName, config);// default version, good here
 			// ActorSystem.create(remotableSystemName, config, cl);  // set a classloader
 			ActorSystem.create(remotableSystemName, config);  // do not set a classloader when run from Gradle ...
 		System.out.println("system: " + system);
@@ -149,7 +149,7 @@ class AkkaRemoteServer {
 		System.out.println("check (remote): end at " + new java.util.Date() + ".");
 
 
-		System.out.println("Server ready ...");
+		System.out.println("\nServer ready ...");
 
 
 		// sleep(500);  // workaround, mainly for flushing console output ...
@@ -160,7 +160,7 @@ class AkkaRemoteServer {
 // TODO: (later) make a little cleanup to move features into methods ...
 
 
-		System.out.println("\nApplication: execution end at " + new java.util.Date() + ".");  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution ...
+		System.out.println("\nApplication: execution end at " + new java.util.Date() + ".");  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...
 	}
 
 }
