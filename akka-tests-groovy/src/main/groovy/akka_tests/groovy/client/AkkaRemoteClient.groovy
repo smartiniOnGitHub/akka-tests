@@ -43,6 +43,7 @@ class AkkaRemoteClient {
 		println("setup: start at ${new Date()}.")
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
+		/*
 		def akkaConfig = '''
 		akka {
 			loglevel = 'DEBUG'
@@ -63,6 +64,26 @@ class AkkaRemoteClient {
 			}
 		}
 		'''
+		 */
+        // multiline strings in Groovy: to use Java-like syntax, put + at the end of lines, and not at the beginning (of next lines) ...
+		String akkaConfig = "" +
+            "akka {\n" +
+			"    loglevel = \"DEBUG\"\n" +
+			// "    log-config-on-start = on\n" +
+			"    actor {\n" +
+			"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
+			"    }\n" +
+			"    remote {\n" +
+			"        netty.tcp {\n" +
+			"            hostname = \"127.0.0.1\"\n" +
+			"            # Client, use a different port than server (2552)\n" +
+			"            # port = 2553\n" +
+			"            port = 0\n" +
+			"        }\n" +
+			"        log-sent-messages = on\n" +
+			"        log-received-messages = on\n" +
+			"    }\n" +
+			"}";
 		println("Akka Config: $akkaConfig")
 
 		def cl = this.class.classLoader
@@ -80,8 +101,9 @@ class AkkaRemoteClient {
 		final String remoteActorName = "greetingActor"  // "greeting_actor"
 
 		final ActorSystem system = // ActorSystem.create(localSystemName)// default version, good the same but only for a local system, using default settings
-			// ActorSystem.create(localSystemName, config, cl)  // set a classloader
-			ActorSystem.create(localSystemName, config)  // do not set Groovy classloader when run from Gradle ...
+			// ActorSystem.create(localSystemName, config)
+			ActorSystem.create(localSystemName, config, cl)  // set a classloader
+			// ActorSystem.create(localSystemName, config)  // do not set Groovy classloader when run from Gradle ...
 		println("system: $system")
 		sleep 500  // workaround, mainly for flushing console output ...
 		println("setup: end at ${new Date()}.")

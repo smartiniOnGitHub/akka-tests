@@ -53,24 +53,25 @@ class AkkaRemoteClient {
 		System.out.println("setup: start at " + new java.util.Date() + ".");
 
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
-		String akkaConfig = 
-			  "akka {\n"
-			+ "    loglevel = \"DEBUG\"\n"
-			// + "    log-config-on-start = on\n"
-			+ "    actor {\n"
-			+ "        provider = \"akka.remote.RemoteActorRefProvider\"\n"
-			+ "    }\n"
-			+ "    remote {\n"
-			+ "        netty.tcp {\n"
-			+ "            hostname = \"127.0.0.1\"\n"
-			+ "            # Client, use a different port than server (2552)\n"
-			+ "            # port = 2553\n"
-			+ "            port = 0\n"
-			+ "        }\n"
-			+ "        log-sent-messages = on\n"
-			+ "        log-received-messages = on\n"
-			+ "    }\n"
-			+ "}";
+        // note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
+		String akkaConfig = "" +
+            "akka {\n" +
+			"    loglevel = \"DEBUG\"\n" +
+			// "    log-config-on-start = on\n" +
+			"    actor {\n" +
+			"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
+			"    }\n" +
+			"    remote {\n" +
+			"        netty.tcp {\n" +
+			"            hostname = \"127.0.0.1\"\n" +
+			"            # Client, use a different port than server (2552)\n" +
+			"            # port = 2553\n" +
+			"            port = 0\n" +
+			"        }\n" +
+			"        log-sent-messages = on\n" +
+			"        log-received-messages = on\n" +
+			"    }\n" +
+			"}";
 		System.out.println("Akka Config: " + akkaConfig);
 
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -81,11 +82,11 @@ class AkkaRemoteClient {
 			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
-		final String localSystemName = "LookupActorSystem"; // "RemoteActorSystem-Client";
-		final String remoteSystemName = "RemoteActorSystem";
-		final String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
+		String localSystemName = "LookupActorSystem"; // "RemoteActorSystem-Client";
+		String remoteSystemName = "RemoteActorSystem";
+		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
 		System.out.println("remote actor system base path: " + remoteBasePath);
-		final String remoteActorName = "greetingActor";  // "greeting_actor";
+		String remoteActorName = "greetingActor";  // "greeting_actor";
 
 		final ActorSystem system = // ActorSystem.create(localSystemName);  // default version, good the same but only for a local system, using default settings
 			// ActorSystem.create(localSystemName, config, cl);  // set a classloader
