@@ -59,22 +59,22 @@ class AkkaRemoteClient {
 		// inline Akka configuration script, to enable looking for remote actors, and with some useful settings for a dev environment
 		// if the client run on the same host of the server (default port is 2552), be sure to use a different port like 2553 or 0 (random) ...
         // note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
-		String akkaConfig = "" +
+		String akkaConfigClient = "" +
             "akka {\n" +
 			"    loglevel = \"INFO\"\n" +
 			// "    log-config-on-start = on\n" +
-			"    actor {\n" +
-			"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
-			"    }\n" +
+			"    actor.provider = \"akka.remote.RemoteActorRefProvider\"\n" +  // use the short version for nested properties, just to show its usage ...
+			// "    remote.netty.tcp.hostname=\"127.0.0.1\"\n"
+			"    remote.netty.tcp.port = 0\n" +  // set random port, useful when running the client on the same host of an already running  server ...
 			"}";
-		System.out.println("Akka Config: " + akkaConfig);
+		System.out.println("Akka Config: " + akkaConfigClient);
 
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		System.out.println("using Java ClassLoader: " + cl);
 		System.out.println("using Akka version: " + ActorSystem.Version());
 
 		Config config = // ConfigFactory.load();  // load from application.conf
-			ConfigFactory.parseString(akkaConfig);  // parse the configuration inside the multi-line string
+			ConfigFactory.parseString(akkaConfigClient);  // parse the configuration inside the multi-line string
 
 		// global actor system to start here
 		String localSystemName = "LookupActorSystem"; // "RemoteActorSystem-Client";
