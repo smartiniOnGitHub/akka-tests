@@ -68,6 +68,7 @@ public class GreetingActor extends UntypedActor
         else if (message instanceof Greeting)
         {
 			log.info(messageClassName + ": Hello \"" + ((Greeting) message).getWho() + "\"");
+			getSender().tell("Hello \"" + ((Greeting) message).getWho() + "\"", getSelf());  // reply to the sender
         }
         // else if (message instanceof BaseMessage)  // but it's abstract ...
         // {
@@ -107,6 +108,7 @@ public class GreetingActor extends UntypedActor
 		else if (message instanceof String)
         {
 			log.info(messageClassName + ": \"" + message.toString() + "\"");
+			getSender().tell(message, getSelf());  // reply to the sender
 		}
         else
         {

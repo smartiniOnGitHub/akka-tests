@@ -71,7 +71,7 @@ class AkkaRemoteServer {
 		"    }\n" +
 		"}";
 
-	ActorSystem system;
+	private ActorSystem system;
 
 	// Utility method
 	public static final void sleep(long msec) {
@@ -118,7 +118,7 @@ class AkkaRemoteServer {
 		// create instance for some actors
 		String remotableActorName = "greetingActor";  // "greeting_actor";
 		ActorRef actor = system.actorOf(props, remotableActorName);
-		System.out.println("Get Actor Reference to GreetingActor: " + actor);
+		System.out.println("Get Actor Reference to " + remotableActorName + ": " + actor);
 		// TODO: start more actors here ...
 
 		sleep(500);  // workaround, mainly for flushing console output ...
@@ -136,10 +136,12 @@ class AkkaRemoteServer {
 		System.out.println("Actor Reference instance is: " + actor);
 		assert actor != null;
 		// send some test messages to the actor
-		actor.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		// actor.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		actor.tell(new Greeting("Test Greeting"), ACTOR_NO_SENDER);
 		actor.tell(new String("Test String"), ACTOR_NO_SENDER);
 		actor.tell(new GenericMessage<String>("simple generic message with a String"), ACTOR_NO_SENDER);
+		// actor.tell(PoisonPill.getInstance(), ACTOR_NO_SENDER);  // the actor will stop when processing this standard message ...
+		// actor.tell(Kill.getInstance(), ACTOR_NO_SENDER);  // the actor will be killed with this standard message, and its supervisor will handle what to do ...
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check: end at " + new java.util.Date() + ".");
 	}
@@ -152,25 +154,29 @@ class AkkaRemoteServer {
 			"    loglevel = \"INFO\"\n" +
 			// "    log-config-on-start = on\n" +
 			"    actor.provider = \"akka.remote.RemoteActorRefProvider\"\n" +  // use the short version for nested properties, just to show its usage ...
-			// "    remote.netty.tcp.hostname=\"127.0.0.1\"\n"
+			"    remote.enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
+			"    remote.netty.tcp.hostname=\"127.0.0.1\"\n" +  // bind to the ip address to use
 			"    remote.netty.tcp.port = 0\n" +  // set random port, useful when running the client on the same host of an already running  server ...
 			"}";
 		System.out.println("Akka Config: " + akkaConfigClient);
-		final ActorSystem system = ActorSystem.create("RemoteActorSystem-Client", ConfigFactory.parseString(akkaConfigClient));
-		System.out.println("system: " + system);
+		final ActorSystem systemClient = ActorSystem.create("RemoteActorSystem-Client", ConfigFactory.parseString(akkaConfigClient));
+		System.out.println("systemClient: " + systemClient);
 		sleep(500);  // workaround, mainly for flushing console output ...
 
-		System.out.println("Actor System instance: " + system);
-		assert system != null;
+		System.out.println("Actor System instance: " + systemClient);
+		assert systemClient != null;
 		// get a selection to our remote greeting actor
 		String remoteSystemName = "RemoteActorSystem";
 		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
 		System.out.println("remote actor system base path: " + remoteBasePath);
 		String remoteActorName = "greetingActor";  // "greeting_actor";
-		ActorSelection selection = system.actorSelection(remoteBasePath + remoteActorName);
+		ActorSelection selection = systemClient.actorSelection(remoteBasePath + remoteActorName);
+		System.out.println("Get Actor Selection to " + remoteActorName + ": " + selection);
 		assert selection != null;
-		selection.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		// selection.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		selection.tell("Test Remote", ACTOR_NO_SENDER);
+		sleep(500);  // workaround, mainly for flushing console output ...
+		systemClient.shutdown();
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check (remote): end at " + new java.util.Date() + ".");
 	}
