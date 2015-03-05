@@ -48,6 +48,8 @@ class AkkaRemoteServer {
 
 	// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
 	// note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
+	private static final String akkaRemoteHostname = "127.0.0.1";  // = "localhost";
+	private static final String akkaRemotePort     = "2552";
 	private static final String akkaConfig = "" +
 		"akka {\n" +
 		"    loglevel = \"INFO\"\n" +
@@ -59,9 +61,9 @@ class AkkaRemoteServer {
 		"    remote {\n" +
 		"        enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
 		"        netty.tcp {\n" +
-		"            hostname = \"127.0.0.1\"\n" +
+		"            hostname = \"" + akkaRemoteHostname + "\"\n" +
 		"            # Server, listen on default Akka tcp port (2552)\n" +
-		"            port = 2552\n" +
+		"            port = " + akkaRemotePort + "\n" +
 		"        }\n" +
 		"        log-sent-messages = on\n" +
 		"        log-received-messages = on\n" +
@@ -155,8 +157,9 @@ class AkkaRemoteServer {
 			// "    log-config-on-start = on\n" +
 			"    actor.provider = \"akka.remote.RemoteActorRefProvider\"\n" +  // use the short version for nested properties, just to show its usage ...
 			"    remote.enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
-			"    remote.netty.tcp.hostname=\"127.0.0.1\"\n" +  // bind to the ip address to use
-			"    remote.netty.tcp.port = 0\n" +  // set random port, useful when running the client on the same host of an already running  server ...
+			"    remote.netty.tcp.hostname=\"" + akkaRemoteHostname + "\"\n" +  // bind to the ip address to use
+			// "    remote.netty.tcp.port = 2553\n" +  // set a custom port, useful when running the client on the same host of an already running server ...
+			"    remote.netty.tcp.port = 0\n" +  // set random port, useful when running the client on the same host of an already running server ...
 			"}";
 		System.out.println("Akka Config: " + akkaConfigClient);
 		final ActorSystem systemClient = ActorSystem.create("RemoteActorSystem-Client", ConfigFactory.parseString(akkaConfigClient));
@@ -167,7 +170,7 @@ class AkkaRemoteServer {
 		assert systemClient != null;
 		// get a selection to our remote greeting actor
 		String remoteSystemName = "RemoteActorSystem";
-		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@127.0.0.1:2552/user/";
+		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@" + akkaRemoteHostname + ":" + akkaRemotePort + "/user/";
 		System.out.println("remote actor system base path: " + remoteBasePath);
 		String remoteActorName = "greetingActor";  // "greeting_actor";
 		ActorSelection selection = systemClient.actorSelection(remoteBasePath + remoteActorName);
