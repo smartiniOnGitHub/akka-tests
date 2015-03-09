@@ -25,6 +25,8 @@ import akka_tests.java.message.*;
 import akka.actor.*;
 // import akka.dispatch.OnFailure;
 // import akka.dispatch.OnSuccess;
+import akka.kernel.Bootable;
+import akka.remote.RemoteScope;
 // import akka.util.Timeout;
 // import akka.testkit.*;  // only for tests
 
@@ -41,7 +43,7 @@ import com.typesafe.config.ConfigFactory;
 /**
  * Simple Java server application for creating some Akka Actors and make them reachable from other (remote) processes
  */
-class AkkaRemoteServer {
+class AkkaRemoteServer implements Bootable {
 
 	// useful reference to empty sender actor, use this instead of null ...
 	private static final ActorRef ACTOR_NO_SENDER = ActorRef.noSender();  // = null;
@@ -49,7 +51,7 @@ class AkkaRemoteServer {
 	// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
 	// note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
 	private static final String akkaRemoteHostname = "127.0.0.1";  // = "localhost";
-	private static final String akkaRemotePort     = "2552";
+	private static final int akkaRemotePort = 2552;
 	private static final String akkaConfig = "" +
 		"akka {\n" +
 		"    loglevel = \"INFO\"\n" +
@@ -57,6 +59,8 @@ class AkkaRemoteServer {
 		// "    daemonic = on # workaround to not keep it running here\n" +
 		"    actor {\n" +
 		"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
+		"        serialize-creators = on\n" +  // good to have in common configuration, to catch errors in dev environment
+		"        serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
 		"    }\n" +
 		"    remote {\n" +
 		"        enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
@@ -70,6 +74,7 @@ class AkkaRemoteServer {
 		"        log-remote-lifecycle-events = on\n" +
 		"        log-frame-size-exceeding = on\n" +
 		"        # log-buffer-size-exceeding = 50000\n" +
+		// "        untrusted-mode = off\n" +  // by default it's already off
 		"    }\n" +
 		"}";
 
@@ -110,8 +115,12 @@ class AkkaRemoteServer {
 		System.out.println("Actor System instance: " + system);
 		// System.out.println("system configuration: ");
 		// system.logConfiguration();  // log the real configuration of the system (could be different than akkaConfig) ...
-		Props       props  = 
-			// new Props(GreetingActor.class);  // deprecated ...
+		Address addr = new Address("akka.tcp", remotableSystemName, akkaRemoteHostname, akkaRemotePort);
+			// AddressFromURIString.parse("akka.tcp://" + remoteSystemName + "@" + akkaRemoteHostname + ":" + akkaRemotePort); // the same
+		Props props =
+			// new Props(GreetingActor.class); // deprecated ...
+			// Props.create(GreetingActor.class); // ok for local deployments ...
+			// Props.create(GreetingActor.class).withDeploy(new Deploy(new RemoteScope(addr))); // ok for remote/remotable deployments ...
 			Props.create(GreetingActor.class);  // ok ...
 		System.out.println("props: " + props);
 		sleep(500);  // workaround, mainly for flushing console output ...
@@ -127,6 +136,7 @@ class AkkaRemoteServer {
 		System.out.println("setup: end at " + new java.util.Date() + ".");
 	}
 
+	// send some message to local actors
 	public final void checkSystem() {
 		System.out.println("check: start at " + new java.util.Date() + ".");
 		assert system != null;
@@ -148,9 +158,9 @@ class AkkaRemoteServer {
 		System.out.println("check: end at " + new java.util.Date() + ".");
 	}
 
+	// create another Akka System to use as a Client
 	protected final void checkSystemRemote() {
 		System.out.println("check (remote): start at " + new java.util.Date() + ".");
-// TODO: check if must be done from another system, and if it's good from the same application ...
 		String akkaConfigClient = "" +
             "akka {\n" +
 			"    loglevel = \"INFO\"\n" +
@@ -160,6 +170,7 @@ class AkkaRemoteServer {
 			"    remote.netty.tcp.hostname=\"" + akkaRemoteHostname + "\"\n" +  // bind to the ip address to use
 			// "    remote.netty.tcp.port = 2553\n" +  // set a custom port, useful when running the client on the same host of an already running server ...
 			"    remote.netty.tcp.port = 0\n" +  // set random port, useful when running the client on the same host of an already running server ...
+			// "    remote.untrusted-mode = off\n" +  // by default it's already off
 			"}";
 		System.out.println("Akka Config: " + akkaConfigClient);
 		final ActorSystem systemClient = ActorSystem.create("RemoteActorSystem-Client", ConfigFactory.parseString(akkaConfigClient));
@@ -168,30 +179,44 @@ class AkkaRemoteServer {
 
 		System.out.println("Actor System instance: " + systemClient);
 		assert systemClient != null;
-		// get a selection to our remote greeting actor
 		String remoteSystemName = "RemoteActorSystem";
 		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@" + akkaRemoteHostname + ":" + akkaRemotePort + "/user/";
 		System.out.println("remote actor system base path: " + remoteBasePath);
 		String remoteActorName = "greetingActor";  // "greeting_actor";
+
+		// get a selection to our remote greeting actor
+		System.out.println("remote actor lookup using actor selection");
 		ActorSelection selection = systemClient.actorSelection(remoteBasePath + remoteActorName);
 		System.out.println("Get Actor Selection to " + remoteActorName + ": " + selection);
 		assert selection != null;
 		// selection.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
 		selection.tell("Test Remote", ACTOR_NO_SENDER);
 		sleep(500);  // workaround, mainly for flushing console output ...
+
+		// try even with the old (deprecated now) way ...
+		System.out.println("remote actor lookup using actor for");
+		ActorRef actor = system.actorFor(remoteBasePath + remoteActorName);
+		assert actor != null;
+		actor.tell("Test Remote", ACTOR_NO_SENDER);
+		sleep(500);  // workaround, mainly for flushing console output ...
+
 		systemClient.shutdown();
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check (remote): end at " + new java.util.Date() + ".");
 	}
 
-	public final void run() {
+	@Override
+	public final void startup() {
 		System.out.println("\nServer ready ...");
 	}
 
+	@Override
 	public final void shutdown() {
-		// sleep(500);  // workaround, mainly for flushing console output ...
-		// system.shutdown();
-		// sleep(500);  // workaround, mainly for flushing console output ...
+		sleep(500);  // workaround, mainly for flushing console output ...
+		if (system != null) {
+			system.shutdown();
+			sleep(500);  // workaround, mainly for flushing console output ...
+		}
 	}
 
 
@@ -202,7 +227,7 @@ class AkkaRemoteServer {
 		app.setup();
 		app.checkSystem();  // test local actors
 		app.checkSystemRemote();  // test to ensure actors are usable from remote
-		app.run();
+		app.startup();
 		app.shutdown();
 
 		System.out.println("\nApplication: main, end at " + new java.util.Date() + ".");  // this is really the end of execution, when daemonic = on , otherwise a shutdown hook should handle the end of execution, and change the message here ...

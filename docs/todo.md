@@ -3,11 +3,10 @@ akka-tests - TODO
 
 TODO
 ----
-- general: ensure that messages sent (that goes to deadLetters) are right (is it Akka to dispatch there unknown messages in actors ?), urgent ... wip
 - general: (java, groovy, scala) ensure that clients are able to use remote actors, urgent ... wip
 - general: tests, comment general dependency on JUnit, and use junit only for Java subproject, and use spock-1.0.x for Groovy, and latest ScalaTest for Scala ...
 - general: get host name/address from code ...
-- general: host address, test even with "0.0.0.0" ...
+- general: get startup argument (if given) to delay server shutdown ...
 - general: update dependencies on latest Akka-2.3.x and ensure all works with it ...
 - general: add utility methods to simplify interaction with actors, then maybe factorize them in the common sub-project ...
 - general: in the sample actor, add a fake calculate code block (with inside an empty loop up to the given number) ...
@@ -52,6 +51,8 @@ DONE
 - general: add samples to get ActorRef from ActorSelection (via Identify messages) ... done (but partial)
 - general: empty sender (in messages to actors, via tell), use ActorRef.noSender() instead of null ... ok
 - general: (java, groovy, scala) check if the client must run with remoting enabled even only for lookup/use remote actors ... yes (it seems)
+- general: host address, test even with "0.0.0.0" ... no
+- general: ensure that messages sent (that goes to deadLetters) are right (is it Akka to dispatch there unknown messages in actors ?), urgent ... yes
 
 - akka-tests-groovy: check how (if possible) to add .gsh (or .groovy) scripts and where to put them ... maybe in a dedicated folders like scripts, but Gradle builds need to be aware of this ... see later
 - akka-tests-groovy: Groovy scripts, check if add dependencies to akka with Groovy @Grab annotations ... maybe in scripts
@@ -62,6 +63,7 @@ DONE
 
 - akka-tests-java: write it in a similar way to the Groovy version, to ensure there aren't problems in my sample code ... ok
 - akka-tests-java: refactor code, to make it more class-oriented, add a shutdown hook with right log to console, etc ... ok (could be more structured, but for now it's good)
+- akka-tests-java: make AkkaRemoteServer implements Bootable (from akka.kernel.Bootable), optional ... ok
 
 
 ---------------
