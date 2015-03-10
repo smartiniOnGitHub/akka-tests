@@ -50,7 +50,7 @@ class AkkaRemoteServer implements Bootable {
 
 	// inline Akka configuration script, to enable publishing actors available in remote, and with some useful settings for a dev environment
 	// note: use here (even if not strictly necessary) the Java-like syntax for multiline strings that in Groovy works ...
-	private static final String akkaRemoteHostname = "127.0.0.1";  // = "localhost";
+	private static final String akkaRemoteHostname = "127.0.0.1";  // "0.0.0.0";  // = "127.0.0.1";  // = "localhost";
 	private static final int akkaRemotePort = 2552;
 	private static final String akkaConfig = "" +
 		"akka {\n" +
@@ -59,8 +59,10 @@ class AkkaRemoteServer implements Bootable {
 		// "    daemonic = on # workaround to not keep it running here\n" +
 		"    actor {\n" +
 		"        provider = \"akka.remote.RemoteActorRefProvider\"\n" +
-		"        serialize-creators = on\n" +  // good to have in common configuration, to catch errors in dev environment
-		"        serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
+		// "        serialize-creators = on\n" +  // good to have in common configuration, to catch errors in dev environment
+		// "        serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
+		"        serialize-creators = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
+		"        serialize-messages = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
 		"    }\n" +
 		"    remote {\n" +
 		"        enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
@@ -167,6 +169,10 @@ class AkkaRemoteServer implements Bootable {
 			"    loglevel = \"INFO\"\n" +
 			// "    log-config-on-start = on\n" +
 			"    actor.provider = \"akka.remote.RemoteActorRefProvider\"\n" +  // use the short version for nested properties, just to show its usage ...
+			// "    actor.serialize-creators = on\n" +  // good to have in common configuration, to catch errors in dev environment
+			// "    actor.serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
+			"    actor.serialize-creators = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
+			"    actor.serialize-messages = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
 			"    remote.enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
 			"    remote.netty.tcp.hostname=\"" + akkaRemoteHostname + "\"\n" +  // bind to the ip address to use
 			// "    remote.netty.tcp.port = 2553\n" +  // set a custom port, useful when running the client on the same host of an already running server ...

@@ -37,7 +37,7 @@ subprojects {
 	}
 
 	ext {
-		akkaVersion = '2.2.5'  // '2.3.9'
+		akkaVersion = '2.3.9'  // '2.2.5'
 		scalaSuffixVersion = '_2.10'  // '_2.11'
 
 		junitVersion = '[4,)'
