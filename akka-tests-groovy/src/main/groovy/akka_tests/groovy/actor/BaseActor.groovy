@@ -30,7 +30,11 @@ abstract class BaseActor extends UntypedActor
     @Override
     void onReceive(Object message) throws Exception
     {
-        // do nothing here ... but override in subclasses
-        // String messageClassName = message?.getClass()?.getName()
+		// do nothing special here, override in subclasses and maybe keep it as last process options ...
+
+		String messageClassName = message?.class?.name
+		log.warning("Unknown message type $messageClassName, contents: \"${message?.toString()}\"")
+
+		unhandled(message)
     }
 }

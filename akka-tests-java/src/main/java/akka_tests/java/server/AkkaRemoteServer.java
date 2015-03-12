@@ -63,6 +63,7 @@ class AkkaRemoteServer implements Bootable {
 		// "        serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
 		"        serialize-creators = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
 		"        serialize-messages = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
+		"        timeout = 60\n" +  // timeout in seconds
 		"    }\n" +
 		"    remote {\n" +
 		"        enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
@@ -173,6 +174,7 @@ class AkkaRemoteServer implements Bootable {
 			// "    actor.serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
 			"    actor.serialize-creators = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
 			"    actor.serialize-messages = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
+			"    actor.timeout = 60\n" +  // timeout in seconds
 			"    remote.enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
 			"    remote.netty.tcp.hostname=\"" + akkaRemoteHostname + "\"\n" +  // bind to the ip address to use
 			// "    remote.netty.tcp.port = 2553\n" +  // set a custom port, useful when running the client on the same host of an already running server ...
@@ -212,6 +214,59 @@ class AkkaRemoteServer implements Bootable {
 		System.out.println("check (remote): end at " + new java.util.Date() + ".");
 	}
 
+	// create another Akka System to use as a Client
+	protected final void checkSystemRemoteViaProxyActor() {
+		System.out.println("check (remote via proxy actor): start at " + new java.util.Date() + ".");
+		String akkaConfigClient = "" +
+            "akka {\n" +
+			"    loglevel = \"INFO\"\n" +
+			// "    log-config-on-start = on\n" +
+			"    actor.provider = \"akka.remote.RemoteActorRefProvider\"\n" +  // use the short version for nested properties, just to show its usage ...
+			// "    actor.serialize-creators = on\n" +  // good to have in common configuration, to catch errors in dev environment
+			// "    actor.serialize-messages = on\n" +  // good to have in common configuration, to catch errors in dev environment
+			"    actor.serialize-creators = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
+			"    actor.serialize-messages = off\n" +  // test, to try to have all work even with Akka-2.2.x ... no, sorry
+			"    actor.timeout = 60\n" +  // timeout in seconds
+			"    remote.enabled-transports = [\"akka.remote.netty.tcp\"]\n" +
+			"    remote.netty.tcp.hostname=\"" + akkaRemoteHostname + "\"\n" +  // bind to the ip address to use
+			// "    remote.netty.tcp.port = 2553\n" +  // set a custom port, useful when running the client on the same host of an already running server ...
+			"    remote.netty.tcp.port = 0\n" +  // set random port, useful when running the client on the same host of an already running server ...
+			// "    remote.untrusted-mode = off\n" +  // by default it's already off
+			"}";
+// TODO: make the call to remote actor, but with the ProxyActor (and instance it in the setup) ...
+		System.out.println("Akka Config: " + akkaConfigClient);
+		final ActorSystem systemClient = ActorSystem.create("RemoteActorSystem-Client", ConfigFactory.parseString(akkaConfigClient));
+		System.out.println("systemClient: " + systemClient);
+		sleep(500);  // workaround, mainly for flushing console output ...
+
+		System.out.println("Actor System instance: " + systemClient);
+		assert systemClient != null;
+		String remoteSystemName = "RemoteActorSystem";
+		String remoteBasePath = "akka.tcp://" + remoteSystemName + "@" + akkaRemoteHostname + ":" + akkaRemotePort + "/user/";
+		System.out.println("remote actor system base path: " + remoteBasePath);
+		String remoteActorName = "greetingActor";  // "greeting_actor";
+
+		// get a selection to our remote greeting actor
+		System.out.println("remote actor lookup using actor selection");
+		ActorSelection selection = systemClient.actorSelection(remoteBasePath + remoteActorName);
+		System.out.println("Get Actor Selection to " + remoteActorName + ": " + selection);
+		assert selection != null;
+		// selection.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		selection.tell("Test Remote", ACTOR_NO_SENDER);
+		sleep(500);  // workaround, mainly for flushing console output ...
+
+		// try even with the old (deprecated now) way ...
+		System.out.println("remote actor lookup using actor for");
+		ActorRef actor = system.actorFor(remoteBasePath + remoteActorName);
+		assert actor != null;
+		actor.tell("Test Remote", ACTOR_NO_SENDER);
+		sleep(500);  // workaround, mainly for flushing console output ...
+
+		systemClient.shutdown();
+		sleep(500);  // workaround, mainly for flushing console output ...
+		System.out.println("check (remote via proxy actor): end at " + new java.util.Date() + ".");
+	}
+
 	@Override
 	public final void startup() {
 		System.out.println("\nServer ready ...");
@@ -234,6 +289,7 @@ class AkkaRemoteServer implements Bootable {
 		app.setup();
 		app.checkSystem();  // test local actors
 		app.checkSystemRemote();  // test to ensure actors are usable from remote
+		app.checkSystemRemoteViaProxyActor();  // test to ensure actors are usable from remote, but calling a local proxy actor
 		app.startup();
 		app.shutdown();
 
