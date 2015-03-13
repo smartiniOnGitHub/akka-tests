@@ -120,35 +120,35 @@ class AkkaRemoteServer implements Bootable {
 		// system.logConfiguration();  // log the real configuration of the system (could be different than akkaConfig) ...
 		Address addr = new Address("akka.tcp", remotableSystemName, akkaRemoteHostname, akkaRemotePort);
 			// AddressFromURIString.parse("akka.tcp://" + remoteSystemName + "@" + akkaRemoteHostname + ":" + akkaRemotePort); // the same
+		System.out.println("addr: " + addr);
+
+		// create instance for some actors
+		String remotableActorName1 = "greetingActor";  // "greeting_actor";
 		Props props =
 			// new Props(GreetingActor.class);  // deprecated ...
 			// Props.create(GreetingActor.class);  // ok for local deployments ...
 			// Props.create(GreetingActor.class).withDeploy(new Deploy(new RemoteScope(addr)));  // ok for remote/remotable deployments ...
 			// Props.create(GreetingActor.class);  // no error with actorFor, but messages goes to deadLetters ...
 			Props.create(GreetingActor.class).withDeploy(new Deploy(new RemoteScope(addr)));  // no error with actorFor, but messages goes to deadLetters ...
-		System.out.println("props: " + props);
-		sleep(500);  // workaround, mainly for flushing console output ...
-		System.out.println("setup: end at " + new java.util.Date() + ".");
-
-		// create instance for some actors
-		String remotableActorName = "greetingActor";  // "greeting_actor";
-		ActorRef actor = system.actorOf(props, remotableActorName);
-		System.out.println("Get Actor Reference to " + remotableActorName + ": " + actor);
-		// TODO: start more actors here ...
+		// System.out.println("props: " + props);
+		ActorRef actor1 = system.actorOf(props, remotableActorName1);
+		System.out.println("Get Actor Reference to " + remotableActorName1 + ": " + actor1);
+		String remotableActorName2 = "proxyActor";
+		Props props2 = // Props.create(ProxyActor.class);
+			Props.create(ProxyActor.class, addr.toString() + "/" + remotableActorName1);
+		ActorRef actor2 = system.actorOf(props2, remotableActorName2);
+		// System.out.println("Get Actor Reference to " + remotableActorName2 + ": " + actor2);  // ok
+		System.out.println("Get Actor Reference to " + actor2.path().name() + ": " + actor2);  // better
 
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("setup: end at " + new java.util.Date() + ".");
 	}
 
-	// send some message to local actors
-	public final void checkSystem() {
-		System.out.println("check: start at " + new java.util.Date() + ".");
-		assert system != null;
-		Config config = ConfigFactory.parseString(akkaConfig);
-		assert config != null;
+	private final void checkActor1Local() {
+		System.out.println("\tcheckActor1Local: start at " + new java.util.Date() + ".");
 		Props       props  = Props.create(GreetingActor.class);
 		assert props != null;
-		ActorRef actor = system.actorOf(props);  // get a new reference to our greeting actor, to ensure all is good
+		ActorRef actor = system.actorOf(props);  // get a new reference to the actor, to ensure all is good
 		System.out.println("Actor Reference instance is: " + actor);
 		assert actor != null;
 		// send some test messages to the actor
@@ -158,6 +158,37 @@ class AkkaRemoteServer implements Bootable {
 		actor.tell(new GenericMessage<String>("simple generic message with a String"), ACTOR_NO_SENDER);
 		// actor.tell(PoisonPill.getInstance(), ACTOR_NO_SENDER);  // the actor will stop when processing this standard message ...
 		// actor.tell(Kill.getInstance(), ACTOR_NO_SENDER);  // the actor will be killed with this standard message, and its supervisor will handle what to do ...
+		sleep(500);  // workaround, mainly for flushing console output ...
+		System.out.println("\tcheckActor1Local: end at " + new java.util.Date() + ".");
+	}
+
+	private final void checkActor2Local() {
+		System.out.println("\tcheckActor2Local: start at " + new java.util.Date() + ".");
+		Props       props  = Props.create(ProxyActor.class);
+		assert props != null;
+		ActorRef actor = system.actorOf(props);  // get a new reference to the actor, to ensure all is good
+		System.out.println("Actor Reference instance is: " + actor);
+		assert actor != null;
+		// send some test messages to the actor
+		// actor.tell(new Identify(null), ACTOR_NO_SENDER);  // send a standard Identify message, so the sender actor will then receive a standard ActorIdentity response ...
+		actor.tell(new String("Test String"), ACTOR_NO_SENDER);
+		actor.tell(new GenericMessage<String>("simple generic message with a String"), ACTOR_NO_SENDER);
+		// actor.tell(PoisonPill.getInstance(), ACTOR_NO_SENDER);  // the actor will stop when processing this standard message ...
+		// actor.tell(Kill.getInstance(), ACTOR_NO_SENDER);  // the actor will be killed with this standard message, and its supervisor will handle what to do ...
+		sleep(500);  // workaround, mainly for flushing console output ...
+		System.out.println("\tcheckActor2Local: end at " + new java.util.Date() + ".");
+	}
+
+	// send some message to local actors
+	public final void checkSystemLocal() {
+		System.out.println("check: start at " + new java.util.Date() + ".");
+		assert system != null;
+		Config config = ConfigFactory.parseString(akkaConfig);
+		assert config != null;
+		
+		checkActor1Local();
+		checkActor2Local();
+
 		sleep(500);  // workaround, mainly for flushing console output ...
 		System.out.println("check: end at " + new java.util.Date() + ".");
 	}
@@ -287,7 +318,7 @@ class AkkaRemoteServer implements Bootable {
 
 		AkkaRemoteServer app = new AkkaRemoteServer();
 		app.setup();
-		app.checkSystem();  // test local actors
+		app.checkSystemLocal();   // test local actors
 		app.checkSystemRemote();  // test to ensure actors are usable from remote
 		app.checkSystemRemoteViaProxyActor();  // test to ensure actors are usable from remote, but calling a local proxy actor
 		app.startup();

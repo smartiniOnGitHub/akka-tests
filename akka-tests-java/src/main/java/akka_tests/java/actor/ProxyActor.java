@@ -43,7 +43,7 @@ public class ProxyActor extends UntypedActor
 {
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
-	// referencing another actor
+	// referencing another (destination) actor, and delegate all to it
 	private ActorRef otherActor;  // = null;  // getContext().actorOf(new Props(OtherActor.class), "other_actor");
 	private String   actorPath;   // = null;
 	private Timeout  timeout;
@@ -79,18 +79,23 @@ public class ProxyActor extends UntypedActor
 
 	@Override
 	public void preStart() {
-		// log.debug("preStart ...");
+		log.info("preStart ...");  // later use log.debug instead ...
+		if (otherActor == null)
+			otherActor = ActorRef.noSender();
+
 		// connect to remote actor
 // TODO: using getContext().actorSelection() ...
+		log.info("preStart: otherActor is " + otherActor);  // later use log.debug instead ...
 	}
 
 	// @Override
 	// public void postRestart(Throwable reason) {
+	// 	log.debug("postRestart ...");
 	// }
 
 	@Override
 	public void postStop() {
-		// log.debug("postStop ...");
+		log.info("postStop ...");  // later use log.debug instead ...
 		// cleanup
 	}
 
@@ -101,62 +106,14 @@ public class ProxyActor extends UntypedActor
         String messageClassName = message.getClass().getName();
 
 		// forward/delegate all to otherActor ...
-// TODO: ...
-        if (message == null)
-        {
-			log.warning(messageClassName + ": null message");
-			unhandled(message);
-        }
-        else if (message instanceof Stop)
-        {
-			log.info(messageClassName + ": " + "Stop this actor now ...");
-			// Stops this actor and all its supervised children
-			getContext().stop(getSelf());
-        }
-        else if (message instanceof Shutdown)
-        {
-            log.info(messageClassName + ": " + "Shutdown this akka system now ...");
-            // Shutdown the entire akka system
-            getContext().system().shutdown();
-        }
-        else if (message instanceof Wait)
-        {
-            long sleep = ((Wait) message).getWaitTime();
-            log.info(messageClassName + ": " + "Waiting for " + sleep + " milliseconds now ...");
-            // Sleep this actor for the given time
-            long startSleep = System.currentTimeMillis();
-            // sleep this actor
-            // note that this is not the right way, but should be ok in this small test ...
-            // because Thread.sleep breaks actors management as it will monopolize all threads of the used executor
-            Thread.sleep(sleep);
-            // note that probably instead it's needed something like this
-            // getContext.system().getScheduler().scheduleOnce(sleep, sender, "Done")
-            long stopSleep = System.currentTimeMillis();
-            log.info("Wait: " + "End Waiting, after " + (stopSleep - startSleep) + " milliseconds.");
-         } else if (message instanceof ActorRef) {
-            log.info(messageClassName + ": Message from an ActorRef, now reply to it ...");
-			otherActor = (ActorRef) message;
-			getSender().tell("done", getSelf());
-		} 
-		else if (message instanceof String)
-        {
-			log.info(messageClassName + ": \"" + message.toString() + "\"");
-			getSender().tell(message, getSelf());  // reply to the sender
+		if (otherActor != null) {
+			log.info(messageClassName + ": forward to actor " + otherActor);
+			otherActor.tell(message, getSelf());
+			// getSender().tell("done", getSelf());
 		}
-        else
-        {
-            if (message != null)
-				log.warning("Unknown message type " + messageClassName + ", contents: \"" + message.toString() + "\"");
-			else
-				log.warning("Unknown message type " + messageClassName + ", message is null");
-
-            unhandled(message);
-        }
-		/*
-// TODO: enable after set base class ...        
 		else {
-			super.onReceive(message);
+			log.info(messageClassName + ", destination actor is null: skipping to unhandled");
+			unhandled(message);
 		}
-		 */
     }
 }

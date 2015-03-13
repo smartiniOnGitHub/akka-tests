@@ -73,5 +73,11 @@ public class GreetingActor extends UntypedActor
 
             unhandled(message);
         }
+		/*
+// TODO: enable after set base class ...        
+		else {
+			super.onReceive(message);
+		}
+		 */
     }
 }
