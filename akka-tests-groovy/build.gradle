@@ -18,9 +18,10 @@ apply plugin: "groovy"
 
 dependencies {
 	compile project(":akka-tests-common")
-	// compile 'org.codehaus.groovy:groovy-all:2.0.8'  // the same version of Grails-2.2.5
-	compile 'org.codehaus.groovy:groovy-all:2.3.10'  // the same version of Grails-2.4.5
-	// compile 'org.codehaus.groovy:groovy-all:2.4.1'  // the same version of Grails-3.0.0
+	// compile 'org.codehaus.groovy:groovy-all:2.0.8'   // the same version of Grails-2.2.5
+	// compile 'org.codehaus.groovy:groovy-all:2.3.10'  // the same version of Grails-2.4.5
+	compile 'org.codehaus.groovy:groovy-all:2.3.11'
+	// compile 'org.codehaus.groovy:groovy-all:2.4.3'   // the same version of Grails-3.0.0 and 2.5.0
 }
 
 task runGroovyScript(type: JavaExec) {
