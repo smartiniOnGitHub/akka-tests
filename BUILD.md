@@ -2,7 +2,7 @@ System Requirements
 ===================
 
 * JDK 1.7 or greater (http://www.oracle.com/technetwork/java/)
-* Gradle 2.3 or greater (http://gradle.org/)
+* Gradle 2.4 or greater (http://gradle.org/)
 
 Project Set-Up
 ==============
