@@ -37,7 +37,7 @@ subprojects {
 	}
 
 	ext {
-		akkaVersion = '2.3.11'  // '2.2.5'
+		akkaVersion = '2.3.13'
 		scalaSuffixVersion = '_2.10'  // '_2.11'
 
 		junitVersion = '[4,)'
@@ -59,6 +59,6 @@ subprojects {
 task info << { task -> println "In $task.project.name" }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.4'
+	gradleVersion = '2.6'
 }
 
