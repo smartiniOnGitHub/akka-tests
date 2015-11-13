@@ -3,13 +3,11 @@ akka-tests - TODO
 
 TODO
 ----
-- general: update Gradle wrapper to 2.7 or later ... wip
 - general: (java, groovy, scala) ensure that clients are able to use remote actors, urgent ... wip
 - general: sample actors (GreetingActor, ProxyActor), refactor common code in BaseActor, not strictly required but could be a good practice to follow ... wip
 - general: tests, comment general dependency on JUnit, and use junit only for Java subproject, and use spock-1.0.x for Groovy, and latest ScalaTest for Scala ...
 - general: get host name/address from code (at least from environment variable) ...
 - general: get startup argument (if given) to delay server shutdown ...
-- general: update dependencies on latest Akka-2.3.x and ensure all works with it ... wip
 - general: add utility methods to simplify interaction with actors, then maybe factorize them in the common sub-project ...
 - general: sample actors (GreetingActor, ProxyActor), make them extend BaseActor, not strictly required but could be a good practice to follow ...
 - general: in the sample actor, add a fake calculate code block (with inside an empty loop up to the given number) ...
@@ -26,18 +24,15 @@ TODO
 - akka-tests-groovy: use Groovy annotations for @TypeChecked and @CompileStatic (since Groovy 2.0) ...
 - akka-tests-groovy: test with the same Groovy release used by latest Grails-3.x ...
 - akka-tests-groovy: use log instead of println ...
+- akka-tests-groovy: update dependencies to latest Scala-2.11.x, but to make it work with Groovy I need an updated (still work-in-progress) version of [groovytransforms](https://github.com/smartiniOnGitHub/groovytransforms) ...
 
+- akka-tests-java: update deprecated code ... wip
 - akka-tests-java: add shutdown hook, and update log messages ...
 
 - akka-tests-scala: write it in a similar way to the Groovy version, to ensure there aren't problems in my sample code ...
 - akka-tests-scala: write a Gradle task runScalaScript (or App), like that of the Groovy version ...
 
-- add unit tests, using Akka-Testkit ...
-
-- add a sub-project (in Java, then maybe even for other languages) for a simple actor server, extending Akka Bootable (note that other dependencies are needed, and classes must be deployed by copying generated jars in Akka standalone deploy folder) ...
-
-
-- check (using extensions or pluggable protocols) if lookup remote actors even in broadcast, for example with cajo (using its rmi-based protocol and standard port 1198 tcp and udp) ...
+- various: add unit tests, using Akka-Testkit ...
 
 
 - etc ...
@@ -64,6 +59,9 @@ DONE
 - general: get better info on remoting for java (current here means 2.3.9): http://doc.akka.io/docs/akka/current/java/remoting.html ... ok
 - general: in Java API, to create actors, check if would be good to use this new Props( ... ) instead of Props.create( ... ) ... seems no
 - general: the discussion on my problems to run remote actors is "[akka-user] Problems using a Remote Actor" at Akka User Group at Google Groups ... ok
+- general: update Gradle wrapper to 2.8 or later ... ok but note that since Gradle 2.4 it's possible to do the same even with a command line like this: 'gradle wrapper --gradle-version 2.8'
+- general: update dependencies to latest Akka-2.3.x (but not higher for now because since Akka-2.4.x is needed Java 8) but for now stay to Scala-2.10.x ... ok
+- general: update dependencies, and repeat later ... ok, and force a refresh with 'gradle clean' and then 'gradle build --refresh-dependencies'
 
 - akka-tests-groovy: check how (if possible) to add .gsh (or .groovy) scripts and where to put them ... maybe in a dedicated folders like scripts, but Gradle builds need to be aware of this ... see later
 - akka-tests-groovy: Groovy scripts, check if add dependencies to akka with Groovy @Grab annotations ... maybe in scripts
@@ -71,11 +69,15 @@ DONE
 - akka-tests-groovy: Remoting here doesn't work with Akka-2.2.4 and 2.3.9 ... in the meantime try from akka-tests-java ... no, it was a problem in my code ... ok
 - akka-tests-groovy: test even with an updated (but stable) Groovy release, like latest 2.3.x, and latest 2.4.x ... ok
 - akka-tests-groovy: test with the same Groovy release used by latest Grails-2.2.x, and then with latest Grails-2.4.x ... ok
+- akka-tests-groovy: test with the same Groovy release used by latest Grails-3.x ... ok
 
 - akka-tests-java: write it in a similar way to the Groovy version, to ensure there aren't problems in my sample code ... ok
 - akka-tests-java: refactor code, to make it more class-oriented, add a shutdown hook with right log to console, etc ... ok (could be more structured, but for now it's good)
 - akka-tests-java: make AkkaRemoteServer implements Bootable (from akka.kernel.Bootable), optional ... ok
 - akka-tests-java: add ProxyActor, to act as a proxy for remote actors ... ok
+
+- various: add a sub-project (in Java, then maybe even for other languages) for a simple actor server, extending Akka Bootable (note that other dependencies are needed, and classes must be deployed by copying generated jars in Akka standalone deploy folder) ... no, because as seen in [Migration Guide 2.3.x to 2.4.x - Akka Documentation](http://doc.akka.io/docs/akka/current/project/migration-guide-2.3.x-2.4.x.html) since Akka 2.4, Akka Microkernel is deprecated, so use instead other solutions as written in docs
+- various: check (using extensions or pluggable protocols) if lookup remote actors even in broadcast, for example with cajo (using its rmi-based protocol and standard port 1198 tcp and udp) ... maybe later
 
 
 ---------------

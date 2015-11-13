@@ -21,9 +21,7 @@ dependencies {
 	// compile 'org.codehaus.groovy:groovy-all:2.0.8'   // the same version of Grails-2.2.5
 	// compile 'org.codehaus.groovy:groovy-all:2.3.10'  // the same version of Grails-2.4.5
 	// compile 'org.codehaus.groovy:groovy-all:2.3.11'  // last for 2.3.x
-	// compile 'org.codehaus.groovy:groovy-all:2.4.3'   // last before goint to Apache Incubator, and the same version used in Grails-3.0.0 and 2.5.0
-	compile 'org.codehaus.groovy:groovy-all:2.4.4'   // first at Apache Incubator, and the same version used in Grails-3.0.4 and 2.5.1
-	// compile 'org.apache.groovy:groovy-all:2.4.4'  // last for 2.4.x
+	compile 'org.codehaus.groovy:groovy-all:2.4.5'   // last for 2.4.x
 }
 
 task runGroovyScript(type: JavaExec) {
