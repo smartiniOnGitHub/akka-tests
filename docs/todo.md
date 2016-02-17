@@ -4,6 +4,8 @@ akka-tests - TODO
 TODO
 ----
 - general: (java, groovy, scala) ensure that clients are able to use remote actors, urgent ... wip
+- general: after all works with Scala 2.10.x and Akka 2.3.x, switch to Scala 2.11.x ...
+- general: after all works with Akka 2.3.x (so tag that release and maybe create a maintenance branch), update to Akka 2.4.x (and Java 8), and update even README file ...
 - general: sample actors (GreetingActor, ProxyActor), refactor common code in BaseActor, not strictly required but could be a good practice to follow ... wip
 - general: tests, comment general dependency on JUnit, and use junit only for Java subproject, and use spock-1.0.x for Groovy, and latest ScalaTest for Scala ...
 - general: get host name/address from code (at least from environment variable) ...
@@ -62,6 +64,7 @@ DONE
 - general: update Gradle wrapper to 2.8 or later ... ok but note that since Gradle 2.4 it's possible to do the same even with a command line like this: 'gradle wrapper --gradle-version 2.8'
 - general: update dependencies to latest Akka-2.3.x (but not higher for now because since Akka-2.4.x is needed Java 8) but for now stay to Scala-2.10.x ... ok
 - general: update dependencies, and repeat later ... ok, and force a refresh with 'gradle clean' and then 'gradle build --refresh-dependencies'
+- general: update to latest Gradle ... ok, updated to Gradle 2.10
 
 - akka-tests-groovy: check how (if possible) to add .gsh (or .groovy) scripts and where to put them ... maybe in a dedicated folders like scripts, but Gradle builds need to be aware of this ... see later
 - akka-tests-groovy: Groovy scripts, check if add dependencies to akka with Groovy @Grab annotations ... maybe in scripts
