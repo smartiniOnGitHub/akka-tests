@@ -64,7 +64,9 @@ DONE
 - general: update Gradle wrapper to 2.8 or later ... ok but note that since Gradle 2.4 it's possible to do the same even with a command line like this: 'gradle wrapper --gradle-version 2.8'
 - general: update dependencies to latest Akka-2.3.x (but not higher for now because since Akka-2.4.x is needed Java 8) but for now stay to Scala-2.10.x ... ok
 - general: update dependencies, and repeat later ... ok, and force a refresh with 'gradle clean' and then 'gradle build --refresh-dependencies'
-- general: update to latest Gradle ... ok, updated to Gradle 2.10
+- general: update to latest Gradle ... ok, updated to Gradle 2.11
+- general: update to latest Groovy ... ok, updated to Groovy 2.4.6
+- general: update to latest Scala ... ok, defined dependencies to latest releases both for 2.10.x and 2.11.x, but keep commented until really used
 
 - akka-tests-groovy: check how (if possible) to add .gsh (or .groovy) scripts and where to put them ... maybe in a dedicated folders like scripts, but Gradle builds need to be aware of this ... see later
 - akka-tests-groovy: Groovy scripts, check if add dependencies to akka with Groovy @Grab annotations ... maybe in scripts

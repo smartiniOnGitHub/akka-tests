@@ -18,4 +18,7 @@ apply plugin: "scala"
 
 dependencies {
 	compile project(":akka-tests-common")
+	// remember to align Scala version here with scalaSuffixVersion defined in main build file
+	// compile 'org.scala-lang:scala-library:2.10.6'   // last for 2.10.x
+	// compile 'org.scala-lang:scala-library:2.11.7'   // latest for 2.11.x
 }

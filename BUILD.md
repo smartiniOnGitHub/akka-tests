@@ -2,7 +2,7 @@ System Requirements
 ===================
 
 * JDK 1.7 or greater (http://www.oracle.com/technetwork/java/)
-* Gradle 2.4 or greater (http://gradle.org/)
+* Gradle 2.9 or greater (http://gradle.org/)
 
 Project Set-Up
 ==============
@@ -13,9 +13,17 @@ Project Set-Up
 Building Akka-tests
 ===================
 
+* To clean and refresh dpependencies (optional):
+
+		$ gradle clean --refresh-dependencies
+
 * To compile all source files into binary class files:
 
 		$ gradle build
+
+* To generate binary packages (one per subproject)
+
+		$ gradle assemble
 
 * To generate Javadoc
 
