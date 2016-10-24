@@ -60,6 +60,6 @@ subprojects {
 task info << { task -> println "In $task.project.name" }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.14.1'
+	gradleVersion = '3.1'
 }
 
