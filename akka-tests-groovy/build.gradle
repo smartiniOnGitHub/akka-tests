@@ -18,7 +18,7 @@ apply plugin: "groovy"
 
 dependencies {
 	compile project(":akka-tests-common")
-	compile 'org.codehaus.groovy:groovy-all:2.4.6'   // latest for 2.4.x
+	compile 'org.codehaus.groovy:groovy-all:2.4.7'   // latest for 2.4.x
 }
 
 task runGroovyScript(type: JavaExec) {
