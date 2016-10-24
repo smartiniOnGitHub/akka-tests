@@ -3,8 +3,7 @@ akka-tests - TODO
 
 TODO
 ----
-- general: (java, groovy, scala) ensure that clients are able to use remote actors, urgent ... wip
-- general: remove deprecations in code: "warning: [deprecation] actorFor(String) in ActorSystem has been deprecated" ... wip
+- general: (java, groovy, scala) ensure that clients are able to use remote actors, urgent; start with lookup and send messages to, and no remote deployment for now ... wip
 - general: after all works with Akka 2.3.x (so tag that release and maybe create a maintenance branch), update to Akka 2.4.x (and Java 8), and update even README file ... wip
 - general: try the new Akka remoting protocol, based on Artery, as seen [hare](http://doc.akka.io/docs/akka/2.4/java/remoting-artery.html), since Akka-2.4.11 ...
 - general: sample actors (GreetingActor, ProxyActor), refactor common code in BaseActor, not strictly required but could be a good practice to follow ... wip
@@ -69,6 +68,7 @@ DONE
 - general: update to latest Groovy ... ok, updated to Groovy 2.4.7
 - general: update to latest Scala ... ok, defined dependencies to latest releases both for 2.10.x and 2.11.x, but keep commented until really used
 - general: switch to Scala 2.11.x ... ok, mainly because Scala-2.10.x is a little outdated now, and Scala-2.12 (that requires Java 8) is near to be released
+- general: remove deprecations in code: "warning: [deprecation] actorFor(String) in ActorSystem has been deprecated" ... ok, removed related (old) code
 
 - akka-tests-groovy: check how (if possible) to add .gsh (or .groovy) scripts and where to put them ... maybe in a dedicated folders like scripts, but Gradle builds need to be aware of this ... see later
 - akka-tests-groovy: Groovy scripts, check if add dependencies to akka with Groovy @Grab annotations ... maybe in scripts
