@@ -39,7 +39,7 @@ subprojects {
 	ext {
 		akkaVersion = '2.3.15'
 		// akkaVersion = '2.4.11'  // note that since 2.4.0 it requires Java 8
-		scalaSuffixVersion = '_2.10'  // '_2.11'
+		scalaSuffixVersion = '_2.11'  // '_2.12'
 
 		junitVersion = '[4,)'
 	}
