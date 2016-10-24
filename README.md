@@ -14,7 +14,7 @@ Build artifacts (mainly jar here) will be delivered via a Maven-compatible Repos
 Dependencies
 ============
 
-* Java 7
+* Java 8
 * some subproject has additional dependencies, see details inside it
 
 
